@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -43,22 +45,65 @@ public class Calculator extends JFrame
 	private JButton[] makeButtons() {
 		//String[] inputs
 		int xCounter = 0, yCounter = 0;
-		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null};
-		for(int i = 1; i < ButtonReturns.length - 1; i++) {
-			if((i - 1) % 3 == 0) {
+		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null, null};
+		for(int i = 2; i < ButtonReturns.length - 1; i++) {
+			if((i - 2) % 3 == 0) {
 				yCounter += 75;
 				xCounter = 0;
 			}
 			JButton tempButton = null;
-			tempButton = setUpButton(tempButton, String.valueOf(i), 200 + xCounter, 400 - yCounter, 50, 50);
+			tempButton = setUpButton(tempButton, String.valueOf(i - 1), 200 + xCounter, 400 - yCounter, 50, 50);
 			ButtonReturns[i] = tempButton;
+			ButtonReturns[i].addActionListener(ActionNumberClicked());
 			xCounter += 75;
 		}
 		
 		JButton tempButton = null;
-		ButtonReturns[0] = setUpButton(tempButton, "0", 200, 400, 200, 50);;
+		ButtonReturns[0] = setUpButton(tempButton, "0", 200, 400, 125, 50);
+		ButtonReturns[0].addActionListener(ActionNumberClicked());
+		
+		ButtonReturns[1] = setUpButton(tempButton, "CL", 350, 400, 50, 50);
+		ButtonReturns[1].addActionListener(ActionClear());
 		
 		return ButtonReturns;
+	}
+	
+	private ActionListener ActionNumberClicked()
+	   {
+		   ActionListener listener = new ActionListener()
+		   {
+			   public void actionPerformed(ActionEvent event)
+			   {
+				   NumberClicked(event);
+			   }
+		   };
+		   return listener;
+	   }
+	
+	private void NumberClicked(ActionEvent event) {
+		String ClickedNumber = ((JButton)event.getSource()).getText();
+		String Before = TextFieldForInput.getText();
+		String After = Before + ClickedNumber;
+		TextFieldForInput.setText(After);
+		System.out.println(TextFieldForInput.getText());
+	}
+	
+	private ActionListener ActionClear()
+	   {
+		   ActionListener listener = new ActionListener()
+		   {
+			   public void actionPerformed(ActionEvent event)
+			   {
+				   ClearScreen(event);
+			   }
+			   
+		   };
+		   return listener;
+	   }
+	
+	private void ClearScreen(ActionEvent event) {
+		TextFieldForInput.setText("");
+		System.out.println("clear");
 	}
 	
 	private void setUpContentPane()

@@ -1,0 +1,4 @@
+centimeter:meter 100,inch 0.393701,millimeter 10,
+meter:centimeter 10,inch 39.3701,millimeter 1000,
+inch:meter 0.0254,centimeter 2.54,millimeter 25.4,
+millimeter:centimeter 0.1,inch 0.0393701,meter 0.001,

@@ -28,8 +28,9 @@ public class Calculator extends JFrame
 	private void createrUserInterface() {
 		setUpContentPane();
 		TextFieldForInput = this.setUpTextField(TextFieldForInput, 0, 0, Length, Width);
+		TextFieldForInput.setEditable(false);
 		TextFieldForInput.setFont(new Font("", Font.BOLD, Width/2));
-		
+		makeButtons();
 		//last
 		setUpWindow();
 		
@@ -37,6 +38,27 @@ public class Calculator extends JFrame
 		
 		//laster last
 		repaint();
+	}
+	
+	private JButton[] makeButtons() {
+		//String[] inputs
+		int xCounter = 0, yCounter = 0;
+		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null};
+		for(int i = 1; i < ButtonReturns.length - 1; i++) {
+			if((i - 1) % 3 == 0) {
+				yCounter += 75;
+				xCounter = 0;
+			}
+			JButton tempButton = null;
+			tempButton = setUpButton(tempButton, String.valueOf(i), 200 + xCounter, 400 - yCounter, 50, 50);
+			ButtonReturns[i] = tempButton;
+			xCounter += 75;
+		}
+		
+		JButton tempButton = null;
+		ButtonReturns[0] = setUpButton(tempButton, "0", 200, 400, 200, 50);;
+		
+		return ButtonReturns;
 	}
 	
 	private void setUpContentPane()

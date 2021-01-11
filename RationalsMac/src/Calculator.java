@@ -19,6 +19,8 @@ public class Calculator extends JFrame
 {
 	private Container contentPane;
 	private JTextField[] TextFieldForInput = {null, null, null, null, null};
+	private int TextFieldCounter = 0;
+	private JButton[] ButtonNums, ButtonCalc = {};
 	
 	private int Length = 300;
 	private int Width = 100;
@@ -33,7 +35,8 @@ public class Calculator extends JFrame
 		//TextFieldForInput = this.setUpTextField(TextFieldForInput, 0, 0, Length, Width);
 		//TextFieldForInput.setEditable(false);
 		//TextFieldForInput.setFont(new Font("", Font.BOLD, Width/2));
-		makeButtons();
+		ButtonNums = makeButtonsNumPad();
+		ButtonCalc = makeButtonsCalculations();
 		//last
 		setUpWindow();
 		
@@ -41,45 +44,49 @@ public class Calculator extends JFrame
 		repaint();
 	}
 	
-	private void makeFields() {
-		int[] LocationsX = {150, 150, 225, 300, 300};
+	
+	private void makeFields() { // make the fraction fields
+		int[] LocationsX = {200, 200, 275, 350, 350};
 		int[] LocationsY = {75, 125, 100, 75, 125};
 		for (int i = 0; i < TextFieldForInput.length; i++) {
-			JTextField TempTextField = TextFieldForInput[i];
-			TempTextField = this.setUpTextField(TempTextField, LocationsX[i], LocationsY[i], 50, 50);
-			TempTextField.setEditable(false);
-			TempTextField.setFont(new Font("", Font.BOLD, Width/2));
-			System.out.println((100 * (i % 2)) + 50);
-			System.out.println(100 + 100 * (i % 2));
-			//TempTextField.setLocation(this.getWidth()/2 - (Length/2), this.getHeight()/10 - (Width/2));	
-			TextFieldForInput[i] = TempTextField;
+			TextFieldForInput[i] = this.setUpTextField(TextFieldForInput[i], LocationsX[i], LocationsY[i], 50, 50);
+			TextFieldForInput[i].setEditable(false);
+			TextFieldForInput[i].setFont(new Font("", Font.BOLD, Width/2));
 		}
 	}
 	
-	private JButton[] makeButtons() {
+	private JButton[] makeButtonsNumPad() { //make the fraction buttons
 		//String[] inputs
 		int xCounter = 0, yCounter = 0;
-		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null, null};
-		for(int i = 2; i < ButtonReturns.length - 1; i++) {
-			if((i - 2) % 3 == 0) {
+		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null, null, null};
+		for(int i = 3; i < ButtonReturns.length - 1; i++) {
+			if((i - 3) % 3 == 0) {
 				yCounter += 75;
 				xCounter = 0;
 			}
-			JButton tempButton = null;
-			tempButton = setUpButton(tempButton, String.valueOf(i - 1), 200 + xCounter, 400 - yCounter, 50, 50);
-			ButtonReturns[i] = tempButton;
+			ButtonReturns[i] = setUpButton(ButtonReturns[i], String.valueOf(i - 2), 200 + xCounter, 450 - yCounter, 50, 50);
 			ButtonReturns[i].addActionListener(ActionNumberClicked());
 			xCounter += 75;
 		}
 		
 		JButton tempButton = null;
-		ButtonReturns[0] = setUpButton(tempButton, "0", 200, 400, 125, 50);
+		ButtonReturns[0] = setUpButton(tempButton, "0", 200, 450, 125, 50);
 		ButtonReturns[0].addActionListener(ActionNumberClicked());
 		
-		ButtonReturns[1] = setUpButton(tempButton, "CL", 350, 400, 50, 50);
+		ButtonReturns[1] = setUpButton(tempButton, "CL", 350, 450, 50, 50);
 		ButtonReturns[1].addActionListener(ActionClear());
 		
+		ButtonReturns[2] = setUpButton(tempButton, "...", 550, 0, 50, 50);
+		ButtonReturns[2].addActionListener(ActionSwitchPad());
+		
 		return ButtonReturns;
+	}
+	
+	private JButton[] makeButtonsCalculations() {
+		int xCounter = 0, yCounter = 0;
+		JButton[] ButtonReturns= {null, null, null, null, null, null, null, null, null, null, null, null}; 
+		//                       to dec, +      -    *     /     ans   flip  =     
+		return null;
 	}
 	
 	private ActionListener ActionNumberClicked()
@@ -92,14 +99,39 @@ public class Calculator extends JFrame
 			   }
 		   };
 		   return listener;
+	  }
+	
+	private ActionListener ActionSwitchPad()
+	   {
+		   ActionListener listener = new ActionListener()
+		   {
+			   public void actionPerformed(ActionEvent event)
+			   {
+				   SwitchPad(event);
+			   }
+		   };
+		   return listener;
 	   }
 	
 	private void NumberClicked(ActionEvent event) {
-		String ClickedNumber = ((JButton)event.getSource()).getText();
-		String Before = TextFieldForInput[0].getText();
-		String After = Before + ClickedNumber;
-		TextFieldForInput[0].setText(After);
-		System.out.println(TextFieldForInput[0].getText());
+		if (TextFieldCounter < TextFieldForInput.length) {
+			String ClickedNumber = ((JButton)event.getSource()).getText();
+			String Before = TextFieldForInput[TextFieldCounter].getText();
+			String After = Before + ClickedNumber;
+			TextFieldForInput[TextFieldCounter].setText(After);
+			System.out.println(TextFieldForInput[TextFieldCounter].getText());
+			TextFieldCounter += 1;
+		}
+	}
+	
+	private void SwitchPad(ActionEvent event) {
+		for(int i = 0; i < ButtonNums.length; i++) {
+			ButtonNums[i].setVisible(false);
+		}
+		for(int i = 0; i < ButtonCalc.length; i++) {
+			ButtonCalc[i].setVisible(true);
+		}
+		System.out.println("switch");
 	}
 	
 	private ActionListener ActionClear()
@@ -116,7 +148,9 @@ public class Calculator extends JFrame
 	   }
 	
 	private void ClearScreen(ActionEvent event) {
-		TextFieldForInput[0].setText("");
+		for(int i = 0; i < TextFieldForInput.length; i++) 
+			TextFieldForInput[i].setText("");
+		TextFieldCounter = 0;
 		System.out.println("clear");
 	}
 	

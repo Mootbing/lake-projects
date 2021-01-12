@@ -12,10 +12,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
-//put the buttons on the app
-//put on the text area for answer
-//make the fractions look better (use unicode character)
-
 public class Calculator extends JFrame
 {
 	private Container contentPane;
@@ -24,8 +20,9 @@ public class Calculator extends JFrame
 	private int TextFieldCounter = 0;
 	private JButton[] ButtonNums, ButtonCalc = {};
 	private JToggleButton SwitchModesButton = null;
+	private Boolean Solved = false;
 	
-	private double Ans = 0.0;
+	private Rational Ans = null;
 	
 	public Calculator() {
 		createrUserInterface();
@@ -131,14 +128,16 @@ public class Calculator extends JFrame
 		String ClickedNumber = ((JButton)event.getSource()).getText();
 		switch(ClickedNumber){
 		case "ANS":
-			if (TextFieldCounter <= 2) {
-				TextFieldForInput[0].setText("0");
-				TextFieldForInput[1].setText("1");
-				TextFieldCounter = 2;
-			}else {
-				TextFieldForInput[3].setText("3");
-				TextFieldForInput[4].setText("4");
-				TextFieldCounter = 5;
+			if(Ans != null){
+				if (TextFieldCounter <= 2) {
+					TextFieldForInput[0].setText(String.valueOf(Ans.getNeumerator()));
+					TextFieldForInput[1].setText(String.valueOf(Ans.getDenominator()));
+					TextFieldCounter = 2;
+				}else {
+					TextFieldForInput[3].setText(String.valueOf(Ans.getNeumerator()));
+					TextFieldForInput[4].setText(String.valueOf(Ans.getDenominator()));
+					TextFieldCounter = 5;
+				}
 			}
 			return;
 		case "FLIP":
@@ -155,10 +154,15 @@ public class Calculator extends JFrame
 			}
 			return;
 		case "DEC":
-			if (TextFieldCounter <= 2) {
-				System.out.println(Double.parseDouble(TextFieldForInput[0].getText())/Double.parseDouble(TextFieldForInput[1].getText()));
+			if(!Solved) {
+				if (TextFieldCounter <= 2) {
+					TextFieldForAnswer.setText(String.valueOf(Double.parseDouble(TextFieldForInput[0].getText())/Double.parseDouble(TextFieldForInput[1].getText())));
+				}else {
+					TextFieldForAnswer.setText(String.valueOf(Double.parseDouble(TextFieldForInput[3].getText())/Double.parseDouble(TextFieldForInput[4].getText())));
+				}
 			}else {
-				System.out.println(Double.parseDouble(TextFieldForInput[3].getText())/Double.parseDouble(TextFieldForInput[4].getText()));
+				// bug here
+				TextFieldForAnswer.setText(String.valueOf(Ans.toDecimal()));
 			}
 			return;
 		};
@@ -166,6 +170,7 @@ public class Calculator extends JFrame
 		// leave this last, only should have + - * / here
 		if (TextFieldCounter == 2) {
 			TextFieldForInput[2].setText(ClickedNumber);
+			SwitchVisiPad(false);
 			TextFieldCounter = 3;
 		}
 	}
@@ -191,10 +196,56 @@ public class Calculator extends JFrame
 			System.out.println(TextFieldForInput[TextFieldCounter].getText());
 			TextFieldCounter += 1;
 		}
+		if (TextFieldCounter == 2) 
+			SwitchVisiPad(true);
+		else if (TextFieldCounter == 5)
+			Solve();
+	}
+	
+	private void Solve() {
+		System.out.println("aaaa");
+		Rational Frac1 = new Rational(Integer.parseInt(TextFieldForInput[0].getText()), Integer.parseInt(TextFieldForInput[1].getText()));
+		Rational Frac2 = new Rational(Integer.parseInt(TextFieldForInput[3].getText()), Integer.parseInt(TextFieldForInput[4].getText()));
+		Rational Answer = null;
+		switch(TextFieldForInput[2].getText()){
+			case "+":
+				Answer = Frac1.add(Frac2);
+				Ans = Answer;
+				Solved = true;
+				break;
+			case "-":
+				Answer = Frac1.subtract(Frac2);
+				Ans = Answer;
+				Solved = true;
+				break;
+			case "*":
+				Answer = Frac1.multiply(Frac2);
+				Ans = Answer;
+				Solved = true;
+				break;
+			case "/":
+				Answer = Frac1.divide(Frac2);
+				Ans = Answer;
+				Solved = true;
+				break;
+			case "=":
+				TextFieldForAnswer.setText(String.valueOf(Frac1.equal(Frac2)));
+				return;
+			case "^":
+				Answer = Frac1.expoential(Frac2.toDecimal());
+				TextFieldForAnswer.setText(String.valueOf(Answer));
+				Ans = Answer;
+				Solved = true;
+				return;
+		};
+		TextFieldForAnswer.setText(Answer.toString());
 	}
 	
 	private void SwitchPad(ActionEvent event) {
-		Boolean Visibility = ((JToggleButton) event.getSource()).isSelected();
+		SwitchVisiPad(((JToggleButton) event.getSource()).isSelected());
+	}
+	
+	private void SwitchVisiPad(Boolean Visibility) {
 		for(int i = 0; i < ButtonNums.length - 1; i++) {
 			if(ButtonNums[i] != null)
 				ButtonNums[i].setVisible(!Visibility);
@@ -203,7 +254,6 @@ public class Calculator extends JFrame
 			if(ButtonCalc[i] != null)
 				ButtonCalc[i].setVisible(Visibility);
 		}
-		System.out.println();
 	}
 
 	private ActionListener ActionClear()
@@ -223,6 +273,7 @@ public class Calculator extends JFrame
 		for(int i = 0; i < TextFieldForInput.length; i++) 
 			TextFieldForInput[i].setText("");
 		TextFieldCounter = 0;
+		Solved = false;
 		System.out.println("clear");
 	}
 	
@@ -261,7 +312,7 @@ public class Calculator extends JFrame
 	{
 		//last
 		setSize(600,600);
-		setTitle("Converter");
+		setTitle("Fraction Destruction");
 		setVisible(true);
 		setResizable(false);
 	}

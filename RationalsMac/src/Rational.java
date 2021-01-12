@@ -174,7 +174,7 @@ public class Rational {
 		return this.multiply(flippedR).simplify();
 	}
 	
-	public Rational expoential(int expoent) 
+	public Rational expoential(double expoent) 
 	{
 		double NumeratorPowered = Math.pow(this.getNeumerator(), expoent);
 		double DenominatorPowered = Math.pow(this.getDenominator(), expoent);

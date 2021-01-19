@@ -3,6 +3,9 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.text.DecimalFormat;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -44,11 +47,11 @@ public class Calculator extends JFrame
 	private void createrUserInterface() {
 		setUpContentPane();
 		makeFields();
-		TextFieldForAnswer = this.setUpTextField(TextFieldForAnswer, 200, 0, 200, 50);
+		TextFieldForAnswer = this.setUpTextField(TextFieldForAnswer, 0, 0, 500, 50);
 		TextFieldForAnswer.setEditable(false);
 		TextFieldForAnswer.setFont(new Font("", Font.BOLD, 50));
 		SwitchModesButton = setUpToggleButton(null, "...", false, 550, 0, 50, 50);
-		SwitchModesButton.addActionListener(ActionSwitchPad());
+		SwitchModesButton.addItemListener(ActionSwitchPad());
 		Submit = setUpButton(Submit, "Submit", 400, 500, 200, 50);
 		Submit.addActionListener(ActionSubmit());
 		DelLast = setUpButton(null, "B", 75, 500, 50, 50);
@@ -163,9 +166,9 @@ public class Calculator extends JFrame
 			TextFieldForInput[i].setBorder(new LineBorder(Color.BLACK, 0));
 		}
 		if (TextFieldCounter == 2) {
-			SwitchVisiPad(true);
+			SwitchModesButton.setSelected(true);
 		}else {
-			SwitchVisiPad(false);
+			SwitchModesButton.setSelected(false);
 		}
 		TextFieldForInput[TextFieldCounter].setBorder(new LineBorder(Color.BLACK, 3)); 
 	}
@@ -252,6 +255,7 @@ public class Calculator extends JFrame
 	}
 	
 	private void CalcClicked(ActionEvent event) {
+		DecimalFormat formatter = new DecimalFormat("0.00000");
 		String ClickedNumber = ((JButton)event.getSource()).getText();
 		switch(ClickedNumber){
 		case "ANS":
@@ -288,8 +292,7 @@ public class Calculator extends JFrame
 					TextFieldForAnswer.setText(String.valueOf(Double.parseDouble(TextFieldForInput[3].getText())/Double.parseDouble(TextFieldForInput[4].getText())));
 				}
 			}else {
-				// bug here
-				TextFieldForAnswer.setText(String.valueOf(Ans.toDecimal()));
+				TextFieldForAnswer.setText(formatter.format(Ans.toDecimal())); 
 			}
 			return;
 		};
@@ -300,11 +303,11 @@ public class Calculator extends JFrame
 		}
 	}
 	
-	private ActionListener ActionSwitchPad()
+	private ItemListener ActionSwitchPad()
 	   {
-		   ActionListener listener = new ActionListener()
+		ItemListener listener = new ItemListener()
 		   {
-			   public void actionPerformed(ActionEvent event)
+			   public void itemStateChanged(ItemEvent event)
 			   {
 				   SwitchPad(event);
 			   }
@@ -369,7 +372,7 @@ public class Calculator extends JFrame
 		}
 	}
 	
-	private void SwitchPad(ActionEvent event) {
+	private void SwitchPad(ItemEvent event) {
 		SwitchVisiPad(((JToggleButton) event.getSource()).isSelected());
 	}
 	
@@ -377,11 +380,12 @@ public class Calculator extends JFrame
 		for(int i = 0; i < ButtonNums.length - 1; i++) {
 			if(ButtonNums[i] != null)
 				ButtonNums[i].setVisible(!Visibility);
+			
 		}
 		for(int i = 0; i < ButtonCalc.length - 1; i++) {
 			if(ButtonCalc[i] != null)
 				ButtonCalc[i].setVisible(Visibility);
-		}
+		}//*/
 	}
 
 	private ActionListener ActionClear()

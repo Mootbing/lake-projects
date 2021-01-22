@@ -22,7 +22,7 @@ public class Calculator extends JFrame
 {
 	private Container contentPane;
 	private JTextField[] TextFieldForInput = {null, null, null, null, null}; 
-	private JTextField TextFieldForAnswer = null;
+	private JTextField TextFieldForEverything = null; //the chosen one
 	private int TextFieldCounter = 0;
 	private JButton[] ButtonNums, ButtonCalc = {};
 	private JToggleButton SwitchModesButton = null;
@@ -31,7 +31,6 @@ public class Calculator extends JFrame
 	private JButton Previous = null;
 	private JButton Submit = null;
 	private JButton DelLast = null;
-	private JButton DelAll = null;
 	private JButton ClearAll = null;
 	
 	//delete one character
@@ -47,17 +46,15 @@ public class Calculator extends JFrame
 	private void createrUserInterface() {
 		setUpContentPane();
 		makeFields();
-		TextFieldForAnswer = this.setUpTextField(TextFieldForAnswer, 0, 0, 500, 50);
-		TextFieldForAnswer.setEditable(false);
-		TextFieldForAnswer.setFont(new Font("", Font.BOLD, 50));
+		TextFieldForEverything = this.setUpTextField(TextFieldForEverything, 0, 0, 500, 50);
+		TextFieldForEverything.setEditable(false);
+		TextFieldForEverything.setFont(new Font("", Font.BOLD, 50));
 		SwitchModesButton = setUpToggleButton(null, "...", false, 550, 0, 50, 50);
 		SwitchModesButton.addItemListener(ActionSwitchPad());
 		Submit = setUpButton(Submit, "Submit", 400, 500, 200, 50);
 		Submit.addActionListener(ActionSubmit());
 		DelLast = setUpButton(null, "B", 75, 500, 50, 50);
 		DelLast.addActionListener(ActionBackspace());
-		DelAll = setUpButton(null, "D", 0, 500, 50, 50);
-		DelAll.addActionListener(ActionDelAllInBox());
 		ClearAll = setUpButton(null, "CL", 150, 500, 50, 50);
 		ClearAll.addActionListener(ActionClear());
 		SetUpPreviousAndNextButtons();
@@ -69,19 +66,6 @@ public class Calculator extends JFrame
 		setUpWindow();
 		//laster last
 		repaint();
-	}
-	
-	private ActionListener ActionDelAllInBox() {
-		{
-			   ActionListener listener = new ActionListener()
-			   {
-				   public void actionPerformed(ActionEvent event)
-				   {
-					   DelAll(event);
-				   }
-			   };
-			   return listener;
-		   }
 	}
 	
 	private ActionListener ActionBackspace() {
@@ -98,29 +82,9 @@ public class Calculator extends JFrame
 	}
 	
 	private void Backspace(ActionEvent event) {
-		if (TextFieldForInput[TextFieldCounter].getText().length() != 0) {
-			String Before = TextFieldForInput[TextFieldCounter].getText();
-			String After = Before.substring(0, Before.length() - 1);
-			TextFieldForInput[TextFieldCounter].setText(After);
-			System.out.println(TextFieldForInput[TextFieldCounter].getText());
-		}
-	}
-	
-	private void DelAll(ActionEvent event) {
-		TextFieldForInput[TextFieldCounter].setText("");
-	}	
-	
-	private ActionListener ActionSubmit() {
-		{
-			   ActionListener listener = new ActionListener()
-			   {
-				   public void actionPerformed(ActionEvent event)
-				   {
-					   Solve();
-				   }
-			   };
-			   return listener;
-		   }
+		String Before = TextFieldForEverything.getText();
+		String After = Before.substring(0, Before.length() - 1);
+		TextFieldForEverything.setText(After);
 	}
 	
 	private void SetUpPreviousAndNextButtons() {
@@ -184,6 +148,19 @@ public class Calculator extends JFrame
 		}
 		TextFieldForInput[2].setBounds(275, 100, 50, 50);
 		TextFieldForInput[0].setBorder(new LineBorder(Color.BLACK, 3)); 
+	}
+	
+	private ActionListener ActionSubmit() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   Solve();
+				   }
+			   };
+			   return listener;
+		   }
 	}
 	
 	private void makeButtonsNumPad() { //make the fraction buttons
@@ -285,7 +262,7 @@ public class Calculator extends JFrame
 			}
 			return;
 		case "DEC":
-			if(!Solved) {
+			/*if(!Solved) {
 				if (TextFieldCounter <= 2) {
 					TextFieldForAnswer.setText(String.valueOf(Double.parseDouble(TextFieldForInput[0].getText())/Double.parseDouble(TextFieldForInput[1].getText())));
 				}else {
@@ -294,13 +271,11 @@ public class Calculator extends JFrame
 			}else {
 				TextFieldForAnswer.setText(formatter.format(Ans.toDecimal())); 
 			}
-			return;
+			return;*/
 		};
 		
 		// leave this last, only should have + - * / here
-		if (TextFieldCounter == 2) {
-			TextFieldForInput[2].setText(ClickedNumber);
-		}
+		TextFieldForEverything.setText(TextFieldForEverything.getText() + ClickedNumber);
 	}
 	
 	private ItemListener ActionSwitchPad()
@@ -319,16 +294,57 @@ public class Calculator extends JFrame
 		String ClickedNumber = ((JButton)event.getSource()).getText();
 		if (ClickedNumber == "0" && (TextFieldCounter == 1 || TextFieldCounter == 4)) 
 			return;
-		if (TextFieldCounter < TextFieldForInput.length && TextFieldCounter != 2) {
-			String Before = TextFieldForInput[TextFieldCounter].getText();
+			String Before = TextFieldForEverything.getText();
 			String After = Before + ClickedNumber;
-			TextFieldForInput[TextFieldCounter].setText(After);
-			System.out.println(TextFieldForInput[TextFieldCounter].getText());
+			TextFieldForEverything.setText(After);
+			//System.out.println(TextFieldForInput[TextFieldCounter].getText());
+	}
+	
+	private Boolean isValid(String check) {
+		int index = 0;
+		for(index = 0; index < TextFieldForEverything.getText().length(); index++) {
+			if(TextFieldForEverything.getText().charAt(index) == '/')
+				// 1/4 / 2/3 + 1/5 - 1/2 
+				break;
 		}
+		String Numerator = TextFieldForEverything.getText().substring(0, index);
+		String Denominator = TextFieldForEverything.getText().substring(0, index);
+		
+		return true;
+	}
+	
+	private Boolean isNumber(char AChar) {
+		try{
+			Integer.parseInt(String.valueOf(AChar)); 
+		}catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 	
 	private void Solve() {
-		for(JTextField ATextField:TextFieldForInput) {
+		
+		String SolveField = TextFieldForEverything.getText();
+		int i = -1;
+		while(true) {
+			i++;
+			char CharAtPointer = SolveField.charAt(i);
+			System.out.println(CharAtPointer);
+			if(!isNumber(CharAtPointer)) {
+				String Neumerator = SolveField.substring(0, i);
+				System.out.println(Neumerator);
+				if(i != SolveField.length() - 1) {
+					String Op = String.valueOf(SolveField.charAt(i));
+					SolveField = SolveField.substring(i + 1, SolveField.length());
+				}
+				i = 0;
+			}else if (i == SolveField.length() - 1) {
+				String Neumerator = SolveField.substring(0, SolveField.length());
+				System.out.println(Neumerator);
+				break;
+			}
+		}
+		/*for(JTextField ATextField:TextFieldForInput) {
 			if (ATextField.getText().equals(""))
 				return;
 		}
@@ -369,7 +385,7 @@ public class Calculator extends JFrame
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	private void SwitchPad(ItemEvent event) {
@@ -402,11 +418,8 @@ public class Calculator extends JFrame
 	   }
 	
 	private void ClearScreen(ActionEvent event) {
-		for(int i = 0; i < TextFieldForInput.length; i++) 
-			TextFieldForInput[i].setText("");
-		TextFieldCounter = 0;
 		Solved = false;
-		TextFieldForAnswer.setText("");
+		TextFieldForEverything.setText("");
 		System.out.println("clear");
 	}
 	

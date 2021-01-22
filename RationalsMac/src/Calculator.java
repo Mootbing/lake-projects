@@ -3,6 +3,9 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.text.DecimalFormat;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -11,16 +14,29 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 public class Calculator extends JFrame
 {
 	private Container contentPane;
-	private JTextField[] TextFieldForInput = {null, null, null, null, null};
+	private JTextField[] TextFieldForInput = {null, null, null, null, null}; 
 	private JTextField TextFieldForAnswer = null;
 	private int TextFieldCounter = 0;
 	private JButton[] ButtonNums, ButtonCalc = {};
 	private JToggleButton SwitchModesButton = null;
 	private Boolean Solved = false;
+	private JButton Next = null;
+	private JButton Previous = null;
+	private JButton Submit = null;
+	private JButton DelLast = null;
+	private JButton DelAll = null;
+	private JButton ClearAll = null;
+	
+	//delete one character
+	//delete all in textbox
+	//debug expoents
 	
 	private Rational Ans = null;
 	
@@ -31,11 +47,20 @@ public class Calculator extends JFrame
 	private void createrUserInterface() {
 		setUpContentPane();
 		makeFields();
-		TextFieldForAnswer = this.setUpTextField(TextFieldForAnswer, 200, 0, 200, 50);
+		TextFieldForAnswer = this.setUpTextField(TextFieldForAnswer, 0, 0, 500, 50);
 		TextFieldForAnswer.setEditable(false);
 		TextFieldForAnswer.setFont(new Font("", Font.BOLD, 50));
 		SwitchModesButton = setUpToggleButton(null, "...", false, 550, 0, 50, 50);
-		SwitchModesButton.addActionListener(ActionSwitchPad());
+		SwitchModesButton.addItemListener(ActionSwitchPad());
+		Submit = setUpButton(Submit, "Submit", 400, 500, 200, 50);
+		Submit.addActionListener(ActionSubmit());
+		DelLast = setUpButton(null, "B", 75, 500, 50, 50);
+		DelLast.addActionListener(ActionBackspace());
+		DelAll = setUpButton(null, "D", 0, 500, 50, 50);
+		DelAll.addActionListener(ActionDelAllInBox());
+		ClearAll = setUpButton(null, "CL", 150, 500, 50, 50);
+		ClearAll.addActionListener(ActionClear());
+		SetUpPreviousAndNextButtons();
 		makeButtonsNumPad();
 		makeButtonsCalculations();
 		
@@ -46,15 +71,119 @@ public class Calculator extends JFrame
 		repaint();
 	}
 	
+	private ActionListener ActionDelAllInBox() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   DelAll(event);
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private ActionListener ActionBackspace() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   Backspace(event);
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private void Backspace(ActionEvent event) {
+		if (TextFieldForInput[TextFieldCounter].getText().length() != 0) {
+			String Before = TextFieldForInput[TextFieldCounter].getText();
+			String After = Before.substring(0, Before.length() - 1);
+			TextFieldForInput[TextFieldCounter].setText(After);
+			System.out.println(TextFieldForInput[TextFieldCounter].getText());
+		}
+	}
+	
+	private void DelAll(ActionEvent event) {
+		TextFieldForInput[TextFieldCounter].setText("");
+	}	
+	
+	private ActionListener ActionSubmit() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   Solve();
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private void SetUpPreviousAndNextButtons() {
+		Next = setUpButton(Next, ">", 550, 275, 50, 50);
+		Previous = setUpButton(Previous, "<", 0, 275, 50, 50);
+		
+		Next.addActionListener(ActionForwardBackwards());
+		Previous.addActionListener(ActionForwardBackwards());
+	}
+	
+	private ActionListener ActionForwardBackwards() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   PrevNext(event);
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private void PrevNext(ActionEvent event) {
+		String ButtonText = ((JButton)event.getSource()).getText();
+		switch(ButtonText) {
+		case "<":
+			if (TextFieldCounter == 0) {
+				return;
+			}else {
+				TextFieldCounter--;
+			}
+			break;
+		case ">":
+			if (TextFieldCounter == 4) {
+				return;
+			}else {
+				TextFieldCounter++;
+			}
+			break;
+		}
+		for(int i = 0; i < TextFieldForInput.length; i++) {
+			TextFieldForInput[i].setBorder(new LineBorder(Color.BLACK, 0));
+		}
+		if (TextFieldCounter == 2) {
+			SwitchModesButton.setSelected(true);
+		}else {
+			SwitchModesButton.setSelected(false);
+		}
+		TextFieldForInput[TextFieldCounter].setBorder(new LineBorder(Color.BLACK, 3)); 
+	}
 	
 	private void makeFields() { // make the fraction fields
-		int[] LocationsX = {200, 200, 275, 350, 350};
+		int[] LocationsX = {0, 0, 275, 400, 400};
 		int[] LocationsY = {75, 125, 100, 75, 125};
 		for (int i = 0; i < TextFieldForInput.length; i++) {
-			TextFieldForInput[i] = this.setUpTextField(TextFieldForInput[i], LocationsX[i], LocationsY[i], 50, 50);
+			TextFieldForInput[i] = this.setUpTextField(TextFieldForInput[i], LocationsX[i], LocationsY[i], 200, 50);
 			TextFieldForInput[i].setEditable(false);
+			TextFieldForInput[i].setHorizontalAlignment(JTextField.CENTER);
 			TextFieldForInput[i].setFont(new Font("", Font.BOLD, 50));
 		}
+		TextFieldForInput[2].setBounds(275, 100, 50, 50);
+		TextFieldForInput[0].setBorder(new LineBorder(Color.BLACK, 3)); 
 	}
 	
 	private void makeButtonsNumPad() { //make the fraction buttons
@@ -74,9 +203,6 @@ public class Calculator extends JFrame
 		
 		ButtonNums[0] = setUpButton(null, "0", 200, 450, 125, 50);
 		ButtonNums[0].addActionListener(ActionNumberClicked());
-		
-		ButtonNums[1] = setUpButton(null, "CL", 350, 450, 50, 50);
-		ButtonNums[1].addActionListener(ActionClear());
 		
 		this.ButtonNums = ButtonNums;
 	}
@@ -124,7 +250,12 @@ public class Calculator extends JFrame
 		   }
 	}
 	
+	private Boolean isNotEmpty(int a, int b) {
+		return (!TextFieldForInput[a].getText().equals("0")) && (!TextFieldForInput[b].getText().equals("0")) && (!TextFieldForInput[a].getText().equals("")) && (!TextFieldForInput[b].getText().equals(""));
+	}
+	
 	private void CalcClicked(ActionEvent event) {
+		DecimalFormat formatter = new DecimalFormat("0.00000");
 		String ClickedNumber = ((JButton)event.getSource()).getText();
 		switch(ClickedNumber){
 		case "ANS":
@@ -132,25 +263,25 @@ public class Calculator extends JFrame
 				if (TextFieldCounter <= 2) {
 					TextFieldForInput[0].setText(String.valueOf(Ans.getNeumerator()));
 					TextFieldForInput[1].setText(String.valueOf(Ans.getDenominator()));
-					TextFieldCounter = 2;
 				}else {
 					TextFieldForInput[3].setText(String.valueOf(Ans.getNeumerator()));
 					TextFieldForInput[4].setText(String.valueOf(Ans.getDenominator()));
-					TextFieldCounter = 5;
 				}
 			}
 			return;
 		case "FLIP":
 			if (TextFieldCounter <= 2) {
-				String temp = TextFieldForInput[0].getText();
-				TextFieldForInput[0].setText(TextFieldForInput[1].getText());
-				TextFieldForInput[1].setText(temp);
-				TextFieldCounter = 2;
+				if(isNotEmpty(0, 1)) {
+					String temp = TextFieldForInput[0].getText();
+					TextFieldForInput[0].setText(TextFieldForInput[1].getText());
+					TextFieldForInput[1].setText(temp);
+				}
 			}else {
-				String temp = TextFieldForInput[3].getText();
-				TextFieldForInput[3].setText(TextFieldForInput[4].getText());
-				TextFieldForInput[4].setText(temp);
-				TextFieldCounter = 5;
+				if(isNotEmpty(3, 4)) {
+					String temp = TextFieldForInput[3].getText();
+					TextFieldForInput[3].setText(TextFieldForInput[4].getText());
+					TextFieldForInput[4].setText(temp);
+				}
 			}
 			return;
 		case "DEC":
@@ -161,8 +292,7 @@ public class Calculator extends JFrame
 					TextFieldForAnswer.setText(String.valueOf(Double.parseDouble(TextFieldForInput[3].getText())/Double.parseDouble(TextFieldForInput[4].getText())));
 				}
 			}else {
-				// bug here
-				TextFieldForAnswer.setText(String.valueOf(Ans.toDecimal()));
+				TextFieldForAnswer.setText(formatter.format(Ans.toDecimal())); 
 			}
 			return;
 		};
@@ -170,16 +300,14 @@ public class Calculator extends JFrame
 		// leave this last, only should have + - * / here
 		if (TextFieldCounter == 2) {
 			TextFieldForInput[2].setText(ClickedNumber);
-			SwitchVisiPad(false);
-			TextFieldCounter = 3;
 		}
 	}
 	
-	private ActionListener ActionSwitchPad()
+	private ItemListener ActionSwitchPad()
 	   {
-		   ActionListener listener = new ActionListener()
+		ItemListener listener = new ItemListener()
 		   {
-			   public void actionPerformed(ActionEvent event)
+			   public void itemStateChanged(ItemEvent event)
 			   {
 				   SwitchPad(event);
 			   }
@@ -188,60 +316,63 @@ public class Calculator extends JFrame
 	   }
 	
 	private void NumberClicked(ActionEvent event) {
+		String ClickedNumber = ((JButton)event.getSource()).getText();
+		if (ClickedNumber == "0" && (TextFieldCounter == 1 || TextFieldCounter == 4)) 
+			return;
 		if (TextFieldCounter < TextFieldForInput.length && TextFieldCounter != 2) {
-			String ClickedNumber = ((JButton)event.getSource()).getText();
 			String Before = TextFieldForInput[TextFieldCounter].getText();
 			String After = Before + ClickedNumber;
 			TextFieldForInput[TextFieldCounter].setText(After);
 			System.out.println(TextFieldForInput[TextFieldCounter].getText());
-			TextFieldCounter += 1;
 		}
-		if (TextFieldCounter == 2) 
-			SwitchVisiPad(true);
-		else if (TextFieldCounter == 5)
-			Solve();
 	}
 	
 	private void Solve() {
-		System.out.println("aaaa");
-		Rational Frac1 = new Rational(Integer.parseInt(TextFieldForInput[0].getText()), Integer.parseInt(TextFieldForInput[1].getText()));
-		Rational Frac2 = new Rational(Integer.parseInt(TextFieldForInput[3].getText()), Integer.parseInt(TextFieldForInput[4].getText()));
-		Rational Answer = null;
-		switch(TextFieldForInput[2].getText()){
-			case "+":
-				Answer = Frac1.add(Frac2);
-				Ans = Answer;
-				Solved = true;
-				break;
-			case "-":
-				Answer = Frac1.subtract(Frac2);
-				Ans = Answer;
-				Solved = true;
-				break;
-			case "*":
-				Answer = Frac1.multiply(Frac2);
-				Ans = Answer;
-				Solved = true;
-				break;
-			case "/":
-				Answer = Frac1.divide(Frac2);
-				Ans = Answer;
-				Solved = true;
-				break;
-			case "=":
-				TextFieldForAnswer.setText(String.valueOf(Frac1.equal(Frac2)));
+		for(JTextField ATextField:TextFieldForInput) {
+			if (ATextField.getText().equals(""))
 				return;
-			case "^":
-				Answer = Frac1.expoential(Frac2.toDecimal());
-				TextFieldForAnswer.setText(String.valueOf(Answer));
-				Ans = Answer;
-				Solved = true;
-				return;
-		};
-		TextFieldForAnswer.setText(Answer.toString());
+		}
+		try {
+			Rational Frac1 = new Rational(Integer.parseInt(TextFieldForInput[0].getText()), Integer.parseInt(TextFieldForInput[1].getText()));
+			Rational Frac2 = new Rational(Integer.parseInt(TextFieldForInput[3].getText()), Integer.parseInt(TextFieldForInput[4].getText()));
+			Rational Answer = null;
+			switch(TextFieldForInput[2].getText()){
+				case "+":
+					Answer = Frac1.add(Frac2);
+					Ans = Answer;
+					Solved = true;
+					break;
+				case "-":
+					Answer = Frac1.subtract(Frac2);
+					Ans = Answer;
+					Solved = true;
+					break;
+				case "*":
+					Answer = Frac1.multiply(Frac2);
+					Ans = Answer;
+					Solved = true;
+					break;
+				case "/":
+					Answer = Frac1.divide(Frac2);
+					Ans = Answer;
+					Solved = true;
+					break;
+				case "=":
+					TextFieldForAnswer.setText(String.valueOf(Frac1.equal(Frac2)));
+					return;
+				case "^":
+					TextFieldForAnswer.setText(String.valueOf(Frac1.expoentialv2(Frac2.toDecimal())));
+					Solved = true;
+					return;
+			};
+			TextFieldForAnswer.setText(Answer.toString());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void SwitchPad(ActionEvent event) {
+	private void SwitchPad(ItemEvent event) {
 		SwitchVisiPad(((JToggleButton) event.getSource()).isSelected());
 	}
 	
@@ -249,11 +380,12 @@ public class Calculator extends JFrame
 		for(int i = 0; i < ButtonNums.length - 1; i++) {
 			if(ButtonNums[i] != null)
 				ButtonNums[i].setVisible(!Visibility);
+			
 		}
 		for(int i = 0; i < ButtonCalc.length - 1; i++) {
 			if(ButtonCalc[i] != null)
 				ButtonCalc[i].setVisible(Visibility);
-		}
+		}//*/
 	}
 
 	private ActionListener ActionClear()
@@ -274,6 +406,7 @@ public class Calculator extends JFrame
 			TextFieldForInput[i].setText("");
 		TextFieldCounter = 0;
 		Solved = false;
+		TextFieldForAnswer.setText("");
 		System.out.println("clear");
 	}
 	

@@ -182,6 +182,13 @@ public class Rational {
 		return powered.simplify();
 	}
 	
+	public float expoentialv2(double expoent) 
+	{
+		double NumeratorPowered = Math.pow(this.getNeumerator(), expoent);
+		double DenominatorPowered = Math.pow(this.getDenominator(), expoent);
+		return ((float) (NumeratorPowered/DenominatorPowered));
+	}
+	
 	public Boolean equal(Rational r) {
 		Rational simpR = r.simplify();
 		Rational simpT = this.simplify();

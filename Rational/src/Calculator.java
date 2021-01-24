@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -47,7 +48,7 @@ public class Calculator extends JFrame
 		setUpContentPane();
 		makeFields();
 		TextFieldForEverything = this.setUpTextField(TextFieldForEverything, 0, 0, 500, 50);
-		TextFieldForEverything.setEditable(false);
+		TextFieldForEverything.setEditable(true);
 		TextFieldForEverything.setFont(new Font("", Font.BOLD, 50));
 		SwitchModesButton = setUpToggleButton(null, "...", false, 550, 0, 50, 50);
 		SwitchModesButton.addItemListener(ActionSwitchPad());
@@ -323,69 +324,90 @@ public class Calculator extends JFrame
 	}
 	
 	private void Solve() {
+		ArrayList<String> ListOfNumbers = new ArrayList<String>();
+		ArrayList<String> ListOfOps = new ArrayList<String>();
+		ArrayList<String> ListOfOpsActual = new ArrayList<String>();
+		ArrayList<Rational> ListOfFracs = new ArrayList<Rational>();
+		String SolveField = TextFieldForEverything.getText().replaceAll("\\s", "");
 		
-		String SolveField = TextFieldForEverything.getText();
-		int i = -1;
-		while(true) {
-			i++;
-			char CharAtPointer = SolveField.charAt(i);
-			System.out.println(CharAtPointer);
-			if(!isNumber(CharAtPointer)) {
-				String Neumerator = SolveField.substring(0, i);
-				System.out.println(Neumerator);
-				if(i != SolveField.length() - 1) {
-					String Op = String.valueOf(SolveField.charAt(i));
-					SolveField = SolveField.substring(i + 1, SolveField.length());
-				}
-				i = 0;
-			}else if (i == SolveField.length() - 1) {
-				String Neumerator = SolveField.substring(0, SolveField.length());
-				System.out.println(Neumerator);
-				break;
-			}
-		}
-		/*for(JTextField ATextField:TextFieldForInput) {
-			if (ATextField.getText().equals(""))
-				return;
-		}
 		try {
-			Rational Frac1 = new Rational(Integer.parseInt(TextFieldForInput[0].getText()), Integer.parseInt(TextFieldForInput[1].getText()));
-			Rational Frac2 = new Rational(Integer.parseInt(TextFieldForInput[3].getText()), Integer.parseInt(TextFieldForInput[4].getText()));
-			Rational Answer = null;
-			switch(TextFieldForInput[2].getText()){
-				case "+":
-					Answer = Frac1.add(Frac2);
-					Ans = Answer;
-					Solved = true;
+			int i = 0;
+			while(true) {
+				char CharAtPointer = SolveField.charAt(i);
+				//System.out.println(CharAtPointer);
+				if(!isNumber(CharAtPointer)) {
+					ListOfNumbers.add(SolveField.substring(0, i));
+					if(i != SolveField.length() - 1) {
+						ListOfOps.add(String.valueOf(SolveField.charAt(i)));
+						SolveField = SolveField.substring(i + 1, SolveField.length());
+					}
+					i = 0;
+					System.out.println(SolveField);
+				}
+				if (i >= SolveField.length() - 1) {
+					ListOfNumbers.add(SolveField.substring(0, SolveField.length()));
 					break;
-				case "-":
-					Answer = Frac1.subtract(Frac2);
-					Ans = Answer;
-					Solved = true;
-					break;
-				case "*":
-					Answer = Frac1.multiply(Frac2);
-					Ans = Answer;
-					Solved = true;
-					break;
-				case "/":
-					Answer = Frac1.divide(Frac2);
-					Ans = Answer;
-					Solved = true;
-					break;
-				case "=":
-					TextFieldForAnswer.setText(String.valueOf(Frac1.equal(Frac2)));
-					return;
-				case "^":
-					TextFieldForAnswer.setText(String.valueOf(Frac1.expoentialv2(Frac2.toDecimal())));
-					Solved = true;
-					return;
-			};
-			TextFieldForAnswer.setText(Answer.toString());
+				}
+				i++;
+			}
+		}catch(Exception e) {
+			System.out.println(e);
 		}
-		catch(Exception e) {
+		
+		System.out.println(ListOfNumbers);
+		System.out.println(ListOfOps);
+		
+		try {
+			for(int NumberIndex = 0; NumberIndex < ListOfNumbers.size() - 1; NumberIndex++) {
+				if(NumberIndex % 2 == 0) {
+					if(ListOfOps.get(NumberIndex).equals("/")) {
+						ListOfFracs.add(MakeRationals(Double.parseDouble(ListOfNumbers.get(NumberIndex)), Double.parseDouble(ListOfNumbers.get(NumberIndex + 1))));
+					}else {
+						TextFieldForEverything.setText("INVALID");
+						return;
+					}
+				}
+				else {
+					ListOfOpsActual.add(ListOfOps.get(NumberIndex));
+				}
+			}
+		}catch(Exception e) {
 			e.printStackTrace();
-		}*/
+		}
+		
+		System.out.println(ListOfFracs);
+		
+		double Answer = Eval(ListOfOpsActual.get(0), ListOfFracs.get(0).toDecimal(), ListOfFracs.get(1).toDecimal());
+		System.out.println(Answer);
+		for(int NumberIndex = 2; NumberIndex < ListOfFracs.size(); NumberIndex++) {
+			Answer = Eval(ListOfOpsActual.get(NumberIndex - 1), Answer, ListOfFracs.get(NumberIndex).toDecimal());
+		}
+		
+		TextFieldForEverything.setText(Double.toString(Answer));
+		
+	}
+	
+	private Rational MakeRationals(double ANumber1, double ANumber2) {
+		Rational r = new Rational((int)ANumber1, (int)ANumber2);
+		TextFieldForEverything.setText(r.toString());
+		System.out.println(r.toString());
+		return r;
+	}
+	
+	private double Eval(String Aop, double ANumber1, double ANumber2) {
+		switch(Aop) {
+			case "+":
+				return ANumber1 + ANumber2;
+			case "-":
+				return ANumber1 - ANumber2;
+			case "*":
+				return ANumber1 * ANumber2;
+			case "/":
+				return ANumber1 / ANumber2;
+			case "^":
+				return Math.pow(ANumber1, ANumber2);
+		}
+		return 0.0;
 	}
 	
 	private void SwitchPad(ItemEvent event) {

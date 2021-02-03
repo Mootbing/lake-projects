@@ -198,8 +198,8 @@ public class Rational {
 	}
 	
 	public static void main(String[] args) {
-		Rational r = new Rational(3,4);
-		System.out.println(r.toDecimal());
+		Calculator m = new Calculator();
+		System.out.println(m.ProcessCurrentStringWithSymbols("1/2+1/3/1/4"));
 	}
 
 }

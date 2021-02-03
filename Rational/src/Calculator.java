@@ -271,8 +271,10 @@ public class Calculator extends JFrame
 	}
 	
 	private Boolean isNumber(char AChar) {
-		if(String.valueOf(AChar).equals("/"))
+		/*if(String.valueOf(AChar).equals("n")) {
+			System.out.print("asdf");
 			return true;
+		}*/
 		try{
 			Integer.parseInt(String.valueOf(AChar)); 
 		}catch (Exception e) {
@@ -288,16 +290,16 @@ public class Calculator extends JFrame
 		String AnswerText = TextFieldForEverything.getText().replaceAll(" ", "");
 		while(true) {
 			if (AnswerText.length() - 1 == counter) {
-				EquationsSplitUpReturn.add(AnswerText.substring(0, AnswerText.length()));
+				EquationsSplitUpReturn.add(AnswerText.substring(0, AnswerText.length()).replaceAll("n", "-"));
 				break;
 			}else if (!isNumber(AnswerText.charAt(counter))) {
-				EquationsSplitUpReturn.add(AnswerText.substring(0, counter));
+				EquationsSplitUpReturn.add(AnswerText.substring(0, counter).replaceAll("n", "-"));
 				EquationsSplitUpReturn.add(AnswerText.substring(counter, counter + 1));
 				AnswerText = AnswerText.substring(counter + 1, AnswerText.length());
 				counter = 0;
-				System.out.println(AnswerText);
 			} 
 			counter++;
+			System.out.println(EquationsSplitUpReturn);
 		}
 		
 		return EquationsSplitUpReturn;
@@ -309,12 +311,64 @@ public class Calculator extends JFrame
 			return null;
 		
 		String[] Splitted = SlashedValue.split("/");
+		
 		int Neumarator = Integer.parseInt(Splitted[0]);
 		int Denominator = Integer.parseInt(Splitted[1]);
 		
 		Rational ReturnValue= new Rational(Neumarator, Denominator);
 		
 		return ReturnValue;
+	}
+	
+	public String ProcessCurrentStringWithSymbols(String StringToProcess) { //rewrite this recursively until no strings left
+		
+		ArrayList<String> EquationsSplitUpReturn = new ArrayList<String>();
+		
+		int counter = 0;
+		int fractionCoutner = 0;
+		while(true) {
+			if (StringToProcess.length() - 1 == counter) {
+				EquationsSplitUpReturn.add(StringToProcess.substring(0, StringToProcess.length()));
+				break;
+			}else if (!isNumber(StringToProcess.charAt(counter))) {
+				EquationsSplitUpReturn.add(StringToProcess.substring(0, counter));
+				if (StringToProcess.charAt(counter) == '/' && fractionCoutner % 2 == 1) 
+					EquationsSplitUpReturn.add(StringToProcess.substring(counter, counter + 1).replaceAll("/", "d"));
+				else 
+					EquationsSplitUpReturn.add(StringToProcess.substring(counter, counter + 1));
+				StringToProcess = StringToProcess.substring(counter + 1, StringToProcess.length());
+				counter = 0;
+				fractionCoutner += 1;
+			} 
+			counter++;
+			System.out.println(EquationsSplitUpReturn);
+			System.out.println(StringToProcess);
+		}
+		
+		/* 1/2 / 1/2 + 1/2 / 1/3 - n1/4
+		 * find first operation. index 1, it is a fraction, find first operation, aka first nonenumber after. 1 >/< 2 and we will find the operation which is /
+		 * 
+		 * 1/2 / 1/2 + 1/2 / 1/3 - n1/4
+		 * 
+		 * 1/2 d
+		 * 1/2 + 1/2 / 1/3 - n1/4
+		 * 
+		 * 1/2 d 1/2 +
+		 * 1/2 / 1/3 - n1/4
+		 * 
+		 * 1/2 d 1/2 +1/2 d
+		 * 1/3 - n1/4
+		 * 
+		 * 1/2 d 1/2 +1/2 d 1/3 -
+		 * n1/4
+		 * 
+		 * 1/2 d 1/2 + 1/2 d 1/3 - n1/4
+		 * 
+		 * 1/2 d 1/2 + 1/2 d 1/3 - (-1/4)
+		 */
+			
+		
+		return "";
 	}
 	
 	private Rational SolveByOrderOfOps(ArrayList<String> Values) {
@@ -327,6 +381,8 @@ public class Calculator extends JFrame
 				Indexes.add(i);
 			}
 		}
+		
+		// 1/2 + 1/2 * 1/2
 		
 		System.out.println(Indexes);
 		

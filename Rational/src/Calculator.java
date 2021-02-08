@@ -320,20 +320,22 @@ public class Calculator extends JFrame
 		return ReturnValue;
 	}
 	
-	public String ProcessCurrentStringWithSymbols(String StringToProcess) { //rewrite this recursively until no strings left
+	public ArrayList<String> ProcessCurrentStringWithSymbols(String StringToProcess) { //rewrite this recursively until no strings left
 		
 		ArrayList<String> EquationsSplitUpReturn = new ArrayList<String>();
 		
 		int counter = 0;
 		int fractionCoutner = 0;
 		while(true) {
-			if (StringToProcess.length() - 1 == counter) {
-				EquationsSplitUpReturn.add(StringToProcess.substring(0, StringToProcess.length()));
+			if (StringToProcess.length() - 1 == 0) {
+				EquationsSplitUpReturn.add(StringToProcess.substring(0));
 				break;
 			}else if (!isNumber(StringToProcess.charAt(counter))) {
 				EquationsSplitUpReturn.add(StringToProcess.substring(0, counter));
 				if (StringToProcess.charAt(counter) == '/' && fractionCoutner % 2 == 1) 
 					EquationsSplitUpReturn.add(StringToProcess.substring(counter, counter + 1).replaceAll("/", "d"));
+				else if (StringToProcess.charAt(counter) == '-' && fractionCoutner % 2 == 1)
+					EquationsSplitUpReturn.add(StringToProcess.substring(counter, counter + 1).replaceAll("-", "m"));
 				else 
 					EquationsSplitUpReturn.add(StringToProcess.substring(counter, counter + 1));
 				StringToProcess = StringToProcess.substring(counter + 1, StringToProcess.length());
@@ -345,6 +347,7 @@ public class Calculator extends JFrame
 			System.out.println(StringToProcess);
 		}
 		
+		System.out.println(EquationsSplitUpReturn);
 		/* 1/2 / 1/2 + 1/2 / 1/3 - n1/4
 		 * find first operation. index 1, it is a fraction, find first operation, aka first nonenumber after. 1 >/< 2 and we will find the operation which is /
 		 * 
@@ -368,15 +371,26 @@ public class Calculator extends JFrame
 		 */
 			
 		
-		return "";
+		return EquationsSplitUpReturn;
 	}
 	
 	private Rational SolveByOrderOfOps(ArrayList<String> Values) {
 		Rational Answer = null;
 		
+		ArrayList<String> ValuesCombined = new ArrayList<String>();
+		
+		for (int i = 0; i < Values.size(); i++) {
+			if(i % 2 == 1 && !(Values.get(i).equals("/")))
+				ValuesCombined.add(Values.get(i));
+			else if(Values.get(i).equals("/"))
+				ValuesCombined.add(String.join(Values.get(i),Values.get(i - 1), Values.get(i + 1))); //funny as hell bc i, i-1 and i+1 is wrong way
+		}
+		
+		System.out.println(ValuesCombined);
+		
 		ArrayList<Integer> Indexes = new ArrayList<Integer>();
-		for(int i = 0; i < Values.size(); i++ ) {
-			String Item = Values.get(i);
+		for(int i = 0; i < ValuesCombined.size(); i++ ) {
+			String Item = ValuesCombined.get(i);
 			if (Item.equals("*") || Item.equals("d")) {
 				Indexes.add(i);
 			}
@@ -390,9 +404,9 @@ public class Calculator extends JFrame
 		for (int i = 0; i < Indexes.size(); i++) {
 			int CurrentIndex = Indexes.get(i) - HowManyDecremented;
 			System.out.println(CurrentIndex);
-			Rational FirstValue = ConvertSlashedStringToRational(Values.get(CurrentIndex - 1));
-			Rational SecondValue = ConvertSlashedStringToRational(Values.get(CurrentIndex + 1));
-			String Op = Values.get(CurrentIndex);
+			Rational FirstValue = ConvertSlashedStringToRational(ValuesCombined.get(CurrentIndex - 1));
+			Rational SecondValue = ConvertSlashedStringToRational(ValuesCombined.get(CurrentIndex + 1));
+			String Op = ValuesCombined.get(CurrentIndex);
 			
 			if(Op.equals("d")) {
 				Answer = FirstValue.divide(SecondValue);
@@ -400,44 +414,45 @@ public class Calculator extends JFrame
 				Answer = FirstValue.multiply(SecondValue);
 			}
 			
-			Values.set(CurrentIndex - 1, Answer.toString().replaceAll(" ", ""));
-			Values.remove(CurrentIndex);
-			Values.remove(CurrentIndex);
+			ValuesCombined.set(CurrentIndex - 1, Answer.toString().replaceAll(" ", ""));
+			ValuesCombined.remove(CurrentIndex);
+			ValuesCombined.remove(CurrentIndex);
 			
 			HowManyDecremented += 2;
 			
-			System.out.println(Values);
+			System.out.println(ValuesCombined);
 		}
 		
 		//1/2+1/3*1/4*1/5
 		
 		HowManyDecremented = 0;
 		int counter = 1;
-		while (Values.size() != 1) {
-			Rational FirstValue = ConvertSlashedStringToRational(Values.get(counter - 1));
-			Rational SecondValue = ConvertSlashedStringToRational(Values.get(counter + 1));
-			String Op = Values.get(counter);
+		while (ValuesCombined.size() != 1) {
+			Rational FirstValue = ConvertSlashedStringToRational(ValuesCombined.get(counter - 1));
+			Rational SecondValue = ConvertSlashedStringToRational(ValuesCombined.get(counter + 1));
+			String Op = ValuesCombined.get(counter);
 			
 			if(Op.equals("+")) {
 				Answer = FirstValue.add(SecondValue);
-			} else if(Op.equals("-")) {
+			} else if(Op.equals("m")) {
 				Answer = FirstValue.subtract(SecondValue);
 			}
 			
-			Values.set(counter - 1, Answer.toString().replaceAll(" ", ""));
-			Values.remove(counter);
-			Values.remove(counter);
+			ValuesCombined.set(counter - 1, Answer.toString().replaceAll(" ", ""));
+			ValuesCombined.remove(counter);
+			ValuesCombined.remove(counter);
 			
-			System.out.println(Values);
+			System.out.println(ValuesCombined);
 		}
-		System.out.println(Values);
+		System.out.println(ValuesCombined);
 		
 		return Answer;
 	}
 	
 	private void Solve() {	
 		
-		ArrayList<String> SeperatedEquation = SeperateEquations();
+		ArrayList<String> SeperatedEquation = ProcessCurrentStringWithSymbols(TextFieldForEverything.getText().replaceAll(" ", ""));
+		//SeperateEquations();
 		
 		Ans = SolveByOrderOfOps(SeperatedEquation);
 		

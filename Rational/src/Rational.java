@@ -199,7 +199,7 @@ public class Rational {
 	
 	public static void main(String[] args) {
 		Calculator m = new Calculator();
-		System.out.println(m.ProcessCurrentStringWithSymbols("1/2+1/3/1/4"));
+		System.out.println(m.ProcessCurrentStringWithSymbols("1/2+-1898924389/-3/1/4"));
 	}
 
 }

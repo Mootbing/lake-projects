@@ -71,8 +71,8 @@ public class Rational {
 	
 	public String toString() 
 	{
-		if(this.getDenominator() == 1)
-			return String.valueOf(numerator);
+		/*if(this.getDenominator() == 1)
+			return String.valueOf(numerator);*/ //this is causing issues 5/1 -> 5 
 		if(this.getNeumerator() == 0)
 			return "0";
 		return numerator + " / " + denominator;

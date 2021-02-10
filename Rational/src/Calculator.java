@@ -307,7 +307,7 @@ public class Calculator extends JFrame
 	
 	private Rational ConvertSlashedStringToRational(String SlashedValue) {
 		
-		if(!SlashedValue.contains("/"))
+		if(!SlashedValue.contains("/")) 
 			return null;
 		
 		String[] Splitted = SlashedValue.split("/");
@@ -383,7 +383,7 @@ public class Calculator extends JFrame
 			if(i % 2 == 1 && !(Values.get(i).equals("/")))
 				ValuesCombined.add(Values.get(i));
 			else if(Values.get(i).equals("/"))
-				ValuesCombined.add(String.join(Values.get(i),Values.get(i - 1), Values.get(i + 1))); //funny as hell bc i, i-1 and i+1 is wrong way
+				ValuesCombined.add(String.join(Values.get(i),Values.get(i - 1), Values.get(i + 1))); //funny bc i, i-1 and i+1 is wrong way
 		}
 		
 		System.out.println(ValuesCombined);
@@ -395,8 +395,7 @@ public class Calculator extends JFrame
 				Indexes.add(i);
 			}
 		}
-		
-		// 1/2 + 1/2 * 1/2
+		//[1, /, 3, +, 1, /, 2, d, 1, /, 8, *, -3, /, 4, (, 1, /, 2, +, (, 1, /, 2, ) , ) ]
 		
 		System.out.println(Indexes);
 		

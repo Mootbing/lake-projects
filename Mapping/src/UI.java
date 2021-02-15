@@ -54,8 +54,8 @@ public class UI extends JFrame{
 		
 		//Define
 		DefineWord = SetUpTextField(DefineWord, 0, 0, 600, 100);
-		DefineDefinition = SetUpTextField(DefineDefinition, 0, 200, 600, 300);
-		SubmitWord = setUpButton(SubmitWord, "Submit", 250, 0, 100, 100);
+		DefineDefinition = SetUpTextField(DefineDefinition, 0, 200, 600, 200);
+		SubmitWord = setUpButton(SubmitWord, "Submit", 100, 500, 300, 50);
 		
 		HideAll();
 		

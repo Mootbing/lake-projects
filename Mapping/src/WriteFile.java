@@ -1,9 +1,16 @@
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
 
-public class WriteFile { 
-	//file format?
-	//make a custom file - encrypt
-	//.lake
-	
+public class WriteFile {
+  public void Write(String FileName, Word AWord) {
+    try {
+      FileWriter w = new FileWriter(FileName);
+      w.write(AWord.toString());
+      w.close();
+      System.out.println("Successfully wrote to the file.");
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }
+  }
 }
-
-//start making the word, read, and write files. Save as .txt for now

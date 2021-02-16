@@ -26,6 +26,7 @@ public class UI extends JFrame{
 	private JTextField DefineWord;
 	private JTextField DefineDefinition;
 	private JButton SubmitWord;
+	private JButton BackToSelection;
 	
 	public UI(){
 		createrUserInterface();
@@ -51,16 +52,24 @@ public class UI extends JFrame{
 		//LookUp
 		SearchBox = SetUpTextField(SearchBox, 0, 0, 500, 100);
 		Enter = setUpButton(Enter, "Search", 500, 0, 100, 100);
+		Enter.addActionListener(ActionSearch());
 		
 		//Define
 		DefineWord = SetUpTextField(DefineWord, 0, 0, 600, 100);
 		DefineDefinition = SetUpTextField(DefineDefinition, 0, 200, 600, 200);
 		SubmitWord = setUpButton(SubmitWord, "Submit", 100, 500, 300, 50);
+		SubmitWord.addActionListener(ActionSubmitNewWord());
+		
+		BackToSelection = setUpButton(BackToSelection, "<", 0, 500, 50, 50);
+		BackToSelection.addActionListener(ActionGoBack());
 		
 		HideAll();
 		
 		SelectLookUp.setVisible(true);
 		SelectDefineNew.setVisible(true);
+		
+		//SearchHandler s = new SearchHandler();
+		//System.out.println(s.Search(""));
 		
 		setUpWindow();
 		//laster last
@@ -73,6 +82,66 @@ public class UI extends JFrame{
 		f.setBounds(x, y, width, height);
 		Pane.add(f);
 		return f;
+	}
+
+	private ActionListener ActionGoBack() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   BackToSelectionMenu();
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private void BackToSelectionMenu() {
+		HideAll();
+		SelectLookUp.setVisible(true);
+		SelectDefineNew.setVisible(true);
+	}
+
+	private ActionListener ActionSubmitNewWord() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   WriteNewWordAndDef();
+				   }
+			   };
+			   return listener;
+		   }
+	}
+
+	private void WriteNewWordAndDef() {
+		String AWord = DefineWord.getText();
+		String ADef = DefineDefinition.getText();
+		Word w = new Word(AWord, ADef);
+		WriteFile wr = new WriteFile();
+		wr.Write("File.txt", w);
+		BackToSelectionMenu();
+	}
+	
+	private ActionListener ActionSearch() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   SearchForWordOrDef();
+				   }
+			   };
+			   return listener;
+		   }
+	}
+
+	private void SearchForWordOrDef() {
+		SearchHandler s = new SearchHandler();
+		String Result = s.Search(SearchBox.getText());
+		SearchBox.setText(Result);
 	}
 	
 	private ActionListener ActionSelect() {
@@ -91,6 +160,7 @@ public class UI extends JFrame{
 						   DefineDefinition.setVisible(true);
 						   SubmitWord.setVisible(true);
 					   }
+					   BackToSelection.setVisible(true);
 				   }
 			   };
 			   return listener;
@@ -105,6 +175,7 @@ public class UI extends JFrame{
 		DefineWord.setVisible(false);
 		DefineDefinition.setVisible(false);
 		SubmitWord.setVisible(false);
+		BackToSelection.setVisible(false);
 	}
 	
 	private JButton setUpButton(JButton button, String name, int x, int y, int width, int height)
@@ -128,6 +199,6 @@ public class UI extends JFrame{
 	public static void main(String[] args) 
 	{
 		UI ui = new UI();
-		//UI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }

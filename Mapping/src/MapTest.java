@@ -15,7 +15,10 @@ public class MapTest {
 		
 		//indexed structure [1, 2, 3, 4, 5, 6, 7, 8, 9] 
 		
-		TreeMap<String, ArrayList<String>> tree = new TreeMap<String, ArrayList<String>>(); //ordered - slower
+		SearchHandler s = new SearchHandler();
+		System.out.println(s.Search(""));
+		
+		//TreeMap<String, ArrayList<String>> tree = new TreeMap<String, ArrayList<String>>(); //ordered - slower
 		
 		//word : meaning
 		//key -> mapped to value
@@ -32,9 +35,9 @@ public class MapTest {
 		
 		//Use binary search to get meaning with a word
 		//
-		Word word = new Word();
+		//Word word = new Word();
 		
-		HashMap hash = new HashMap(); //no order - faster
+		//HashMap hash = new HashMap(); //no order - faster
 	}
 
 }

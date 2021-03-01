@@ -16,7 +16,7 @@ public class MapTest {
 		//indexed structure [1, 2, 3, 4, 5, 6, 7, 8, 9] 
 		
 		SearchHandler s = new SearchHandler();
-		System.out.println(s.Search(""));
+		//System.out.println(s.Search(""));
 		
 		//TreeMap<String, ArrayList<String>> tree = new TreeMap<String, ArrayList<String>>(); //ordered - slower
 		

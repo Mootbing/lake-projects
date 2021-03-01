@@ -140,8 +140,8 @@ public class UI extends JFrame{
 
 	private void SearchForWordOrDef() {
 		SearchHandler s = new SearchHandler();
-		String Result = s.Search(SearchBox.getText());
-		SearchBox.setText(Result);
+		//String Result = s.Search(SearchBox.getText());
+		//SearchBox.setText(Result);
 	}
 	
 	private ActionListener ActionSelect() {

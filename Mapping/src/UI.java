@@ -3,12 +3,19 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 
 public class UI extends JFrame{
 	
@@ -21,12 +28,21 @@ public class UI extends JFrame{
 	//Lookup
 	private JTextField SearchBox;
 	private JButton Enter;
+	private JToggleButton SearchHistoryButton;
+	private JLabel WordSearched;
+	private JLabel DefFound;
+	private ArrayList<String> SearchHistory = new ArrayList<String>();
+	private ArrayList<JButton> ButtonsOfHistory;
+	private ArrayList<JButton> ResultsForWordAndDefButtons;
+	private JComboBox<String> Dropdown = new JComboBox<String>();
 	
 	//Define
 	private JTextField DefineWord;
 	private JTextField DefineDefinition;
 	private JButton SubmitWord;
 	private JButton BackToSelection;
+	
+	
 	
 	public UI(){
 		createrUserInterface();
@@ -53,6 +69,17 @@ public class UI extends JFrame{
 		SearchBox = SetUpTextField(SearchBox, 0, 0, 500, 100);
 		Enter = setUpButton(Enter, "Search", 500, 0, 100, 100);
 		Enter.addActionListener(ActionSearch());
+		WordSearched = SetUpTextArea(WordSearched, "", 200, 200, 100, 100);
+		DefFound = SetUpTextArea(DefFound, "", 200, 400, 100, 100);
+		SearchHistoryButton = new JToggleButton("Logs");
+		SearchHistoryButton.setBounds(500, 500, 50, 50);
+		Pane.add(SearchHistoryButton);
+		SearchHistoryButton.addItemListener(ActionSearchHistory());
+		Dropdown.addItem("Word");
+		Dropdown.addItem("Def");
+		Dropdown.setSelectedItem("Word");
+		Dropdown.setBounds(500, 100, 100, 50);
+		Pane.add(Dropdown);
 		
 		//Define
 		DefineWord = SetUpTextField(DefineWord, 0, 0, 600, 100);
@@ -76,6 +103,37 @@ public class UI extends JFrame{
 		repaint();
 	}
 	
+	private ItemListener ActionSearchHistory() {
+		{
+			   ItemListener listener = new ItemListener()
+			   {
+				   public void itemStateChanged(ItemEvent event)
+				   {
+					   if(event.getStateChange() == ItemEvent.SELECTED) {
+					   
+						   int limit;
+						   
+						   if(SearchHistory.size() - 10 < 0) 
+							   limit = 0;
+						   else 
+							   limit = SearchHistory.size() - 10;
+							   
+						   ArrayList<String> NewList = new ArrayList<String>(SearchHistory.subList(limit, SearchHistory.size()));
+						   
+						   ButtonsOfHistory = MakeJButtonArray(NewList, 300);
+						   for(JButton btn : ButtonsOfHistory)
+								btn.addActionListener(ActionRedirectWord(null));
+					   }else {
+						   for(JButton btn : ButtonsOfHistory) 
+							   getContentPane().remove(btn);
+						   repaint();
+					   }
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
 	private JTextField SetUpTextField(JTextField f, int x, int y, int width, int height) 
 	{
 		f = new JTextField();
@@ -84,6 +142,14 @@ public class UI extends JFrame{
 		return f;
 	}
 
+	private JLabel SetUpTextArea(JLabel t, String s, int x, int y, int width, int height) 
+	{
+		t = new JLabel(s);
+		t.setBounds(x, y, width, height);
+		Pane.add(t);
+		return t;
+	}
+	
 	private ActionListener ActionGoBack() {
 		{
 			   ActionListener listener = new ActionListener()
@@ -139,9 +205,71 @@ public class UI extends JFrame{
 	}
 
 	private void SearchForWordOrDef() {
-		SearchHandler s = new SearchHandler();
-		//String Result = s.Search(SearchBox.getText());
-		//SearchBox.setText(Result);
+		
+		if(ResultsForWordAndDefButtons != null) {
+		
+			for (JButton b : ResultsForWordAndDefButtons)
+				   getContentPane().remove(b);
+		   repaint();
+		   ResultsForWordAndDefButtons = new ArrayList<JButton>();
+		   
+		}
+		   
+		if(Dropdown.getSelectedItem().equals("Def")) {
+			ArrayList<String> Result = SearchHandler.GetWords(SearchBox.getText(), 10);
+			
+			if (Result.isEmpty()) {
+				SearchBox.setText("Nothing found");
+				return;
+			}
+		
+			ResultsForWordAndDefButtons = MakeJButtonArray(Result, 0);
+			for(JButton btn : ResultsForWordAndDefButtons)
+				btn.addActionListener(ActionRedirectWord(ResultsForWordAndDefButtons));
+		}
+		else {
+			SearchBox.setText("No definition yet");
+			System.out.println("oops");
+		}
+		
+		if(SearchHistory.contains(SearchBox.getText()))
+			SearchHistory.remove(SearchBox.getText());
+		SearchHistory.add(SearchBox.getText());
+		
+	}
+	
+	private ArrayList<JButton> MakeJButtonArray(ArrayList<String> Input, int OffsetY){
+		ArrayList<JButton> ButtonStuff = new ArrayList<JButton>();
+		int x = 50;
+		int y = OffsetY + 75;
+		
+		for (int i = 0; i < Input.size(); i++) {
+			x += 100;
+			if(i % 5 == 0) {
+				x = 50;
+				y += 50;
+			}
+			JButton temp = setUpButton(null, Input.get(i), x, y, 100, 50);
+			ButtonStuff.add(temp);
+		}
+		
+		repaint();
+		
+		return ButtonStuff;
+	}
+	
+	private ActionListener ActionRedirectWord(ArrayList<JButton> allbtns) {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   SearchBox.setText(((JButton)event.getSource()).getText()); 
+					   SearchForWordOrDef();
+				   }
+			   };
+			   return listener;
+		   }
 	}
 	
 	private ActionListener ActionSelect() {
@@ -154,6 +282,8 @@ public class UI extends JFrame{
 						   HideAll();
 						   SearchBox.setVisible(true);
 						   Enter.setVisible(true);
+						   SearchHistoryButton.setVisible(true);
+						   Dropdown.setVisible(true);
 					   }else if(((AbstractButton) event.getSource()).getText().equals("Define New")) {
 						   HideAll();
 						   DefineWord.setVisible(true);
@@ -169,6 +299,7 @@ public class UI extends JFrame{
 	
 	private void HideAll() {
 		SelectLookUp.setVisible(false);
+		SearchHistoryButton.setVisible(false);
 		SelectDefineNew.setVisible(false);
 		SearchBox.setVisible(false);
 		Enter.setVisible(false);
@@ -176,6 +307,7 @@ public class UI extends JFrame{
 		DefineDefinition.setVisible(false);
 		SubmitWord.setVisible(false);
 		BackToSelection.setVisible(false);
+		Dropdown.setVisible(false);
 	}
 	
 	private JButton setUpButton(JButton button, String name, int x, int y, int width, int height)

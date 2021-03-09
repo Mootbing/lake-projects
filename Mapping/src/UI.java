@@ -20,6 +20,7 @@ import javax.swing.JToggleButton;
 public class UI extends JFrame{
 	
 	private Container Pane;
+	private int DefCounter = 0;
 	
 	//Selection
 	private JButton SelectLookUp;
@@ -31,6 +32,8 @@ public class UI extends JFrame{
 	private JToggleButton SearchHistoryButton;
 	private JLabel WordSearched;
 	private JLabel DefFound;
+	private JButton ButtonToSwitchDef;
+	private JButton ButtonToSwitchDefPrev;
 	private ArrayList<String> SearchHistory = new ArrayList<String>();
 	private ArrayList<JButton> ButtonsOfHistory;
 	private ArrayList<JButton> ResultsForWordAndDefButtons;
@@ -69,8 +72,13 @@ public class UI extends JFrame{
 		SearchBox = SetUpTextField(SearchBox, 0, 0, 500, 100);
 		Enter = setUpButton(Enter, "Search", 500, 0, 100, 100);
 		Enter.addActionListener(ActionSearch());
-		WordSearched = SetUpTextArea(WordSearched, "", 200, 200, 100, 100);
-		DefFound = SetUpTextArea(DefFound, "", 200, 400, 100, 100);
+		WordSearched = SetUpTextArea(WordSearched, "", 50, 200, 600, 100);
+		DefFound = SetUpTextArea(DefFound, "", 50, 225, 600, 100);
+		WordSearched.setFont(new Font("Arial", Font.PLAIN, 40));
+		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 300, 300, 100, 100);
+		ButtonToSwitchDef.addActionListener(ActionSwitchDef());
+		ButtonToSwitchDefPrev = setUpButton(ButtonToSwitchDefPrev, "Previous Def", 100, 300, 100, 100);
+		ButtonToSwitchDefPrev.addActionListener(ActionSwitchDef());
 		SearchHistoryButton = new JToggleButton("Logs");
 		SearchHistoryButton.setBounds(500, 500, 50, 50);
 		Pane.add(SearchHistoryButton);
@@ -101,6 +109,27 @@ public class UI extends JFrame{
 		setUpWindow();
 		//laster last
 		repaint();
+	}
+	
+	private ActionListener ActionSwitchDef() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   switch(((JButton)event.getSource()).getText()) {
+						   case "Previous Def":
+							   DefCounter -= 1;
+							   break;
+						   case "Next Def":
+							   DefCounter += 1;
+							   break;
+					   }
+					   SearchForWordOrDef();
+				   }
+			   };
+			   return listener;
+		   }
 	}
 	
 	private ItemListener ActionSearchHistory() {
@@ -197,6 +226,7 @@ public class UI extends JFrame{
 			   {
 				   public void actionPerformed(ActionEvent event)
 				   {
+					   DefCounter = 0;
 					   SearchForWordOrDef();
 				   }
 			   };
@@ -214,22 +244,33 @@ public class UI extends JFrame{
 		   ResultsForWordAndDefButtons = new ArrayList<JButton>();
 		   
 		}
-		   
-		if(Dropdown.getSelectedItem().equals("Def")) {
-			ArrayList<String> Result = SearchHandler.GetWords(SearchBox.getText(), 10);
+		
+		ArrayList<String> Result = SearchHandler.GetWords(SearchBox.getText(), 10);
+		
+		if (Result.isEmpty()) {
+			SearchBox.setText("Nothing found");
+			return;
+		}
+	
+		ResultsForWordAndDefButtons = MakeJButtonArray(Result, 0);
+		for(JButton btn : ResultsForWordAndDefButtons)
+			btn.addActionListener(ActionRedirectWord(ResultsForWordAndDefButtons));
+		
+		if(Dropdown.getSelectedItem().equals("Word")) {
+			ArrayList<String> Resultv2 = SearchHandler.FindDefinitionReturnArrayListString(SearchBox.getText(), 10);
 			
-			if (Result.isEmpty()) {
+			if (Resultv2.isEmpty()) {
 				SearchBox.setText("Nothing found");
 				return;
+			}else {
+				WordSearched.setText(SearchBox.getText());
+				if(DefCounter >= Resultv2.size())
+					DefCounter = 0;
+				else if (DefCounter < 0)
+					DefCounter = Resultv2.size() - 1;
+				
+				DefFound.setText(Resultv2.get(DefCounter));
 			}
-		
-			ResultsForWordAndDefButtons = MakeJButtonArray(Result, 0);
-			for(JButton btn : ResultsForWordAndDefButtons)
-				btn.addActionListener(ActionRedirectWord(ResultsForWordAndDefButtons));
-		}
-		else {
-			SearchBox.setText("No definition yet");
-			System.out.println("oops");
 		}
 		
 		if(SearchHistory.contains(SearchBox.getText()))
@@ -284,6 +325,8 @@ public class UI extends JFrame{
 						   Enter.setVisible(true);
 						   SearchHistoryButton.setVisible(true);
 						   Dropdown.setVisible(true);
+						   ButtonToSwitchDef.setVisible(true);
+						   ButtonToSwitchDefPrev.setVisible(true);
 					   }else if(((AbstractButton) event.getSource()).getText().equals("Define New")) {
 						   HideAll();
 						   DefineWord.setVisible(true);
@@ -308,6 +351,8 @@ public class UI extends JFrame{
 		SubmitWord.setVisible(false);
 		BackToSelection.setVisible(false);
 		Dropdown.setVisible(false);
+		ButtonToSwitchDef.setVisible(false);
+		ButtonToSwitchDefPrev.setVisible(false);
 	}
 	
 	private JButton setUpButton(JButton button, String name, int x, int y, int width, int height)

@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 /*
@@ -59,9 +60,13 @@ public class SearchHandler {
 	
 	public static ArrayList<String> GetDefs(String AWord, int ALimits){
 		JSONArray thing = Search(AWord, ALimits, false);
+		
+		System.out.println(thing);
+		
 		ArrayList<String> PossibleDefinations = new ArrayList<String>();
 		for (int i = 0; i < thing.size(); i++) 
-			PossibleDefinations.add(((JSONObject)(thing.get(i))).get("defs").toString());
+			if(!((JSONObject)(thing.get(i))).get("defs").toString().equals(null))
+				PossibleDefinations.add(((JSONObject)(thing.get(i))).get("defs").toString());
 		
 		return PossibleDefinations;
 	}
@@ -75,24 +80,27 @@ public class SearchHandler {
 		return "NOTHING FOUND";
 	}
 	
+	public static ArrayList<String> FindDefinitionReturnArrayListString(String AWord, int ALimit) {
+		ArrayList<String> list = GetDefs(AWord, ALimit);
+		ArrayList<String> listv2 = FindDefinitions(list.get(0));
+		return listv2;
+	}
+	
 	private static ArrayList<String> FindDefinitions (String DefinitionToSplit){
 		
-		ArrayList<String> Definition = new ArrayList<String>();
+		ArrayList<String> ReturnValue = new ArrayList<String>();
 		
-		while (DefinitionToSplit.indexOf("\\t") != -1) {
-			int SplitPlace = DefinitionToSplit.indexOf("\\t");
-			DefinitionToSplit = DefinitionToSplit.substring(SplitPlace + 2);
-			int Split2 = DefinitionToSplit.indexOf("\\t");
-			if(DefinitionToSplit.indexOf("\\t") != -1) {
-				Definition.add(DefinitionToSplit.substring(0, Split2 - 4));
-				DefinitionToSplit = DefinitionToSplit.substring(Split2 + 2); 
-			}
+		JSONArray obj = (JSONArray) JSONValue.parse(DefinitionToSplit);
+		
+		for (int i = 0; i < obj.size(); i++) {
+			ReturnValue.add(obj.get(i).toString().replaceAll("\\t", " - "));
 		}
 		
-		return Definition;
+		return ReturnValue;
+		
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(SearchHandler.FindDefinition("ring", 10, 4));
+		System.out.println(SearchHandler.FindDefinition("cute", 10, 1));
 	}
 }

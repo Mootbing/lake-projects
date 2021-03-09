@@ -64,9 +64,13 @@ public class SearchHandler {
 		System.out.println(thing);
 		
 		ArrayList<String> PossibleDefinations = new ArrayList<String>();
-		for (int i = 0; i < thing.size(); i++) 
-			if(!((JSONObject)(thing.get(i))).get("defs").toString().equals(null))
+		for (int i = 0; i < thing.size(); i++) {
+			try {
 				PossibleDefinations.add(((JSONObject)(thing.get(i))).get("defs").toString());
+			}catch(Exception e) {
+				continue;
+			}
+		}
 		
 		return PossibleDefinations;
 	}
@@ -75,7 +79,10 @@ public class SearchHandler {
 		if ((Index >= 0 && Index < ALimit)) {
 			ArrayList<String> list = GetDefs(AWord, ALimit);
 			ArrayList<String> listv2 = FindDefinitions(list.get(0));
-			return listv2.get(Index);
+			if ((Index < listv2.size())) 
+				return listv2.get(Index);
+			else 
+				return listv2.get(listv2.size() - 1);
 		}
 		return "NOTHING FOUND";
 	}
@@ -101,6 +108,6 @@ public class SearchHandler {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(SearchHandler.FindDefinition("cute", 10, 1));
+		System.out.println(SearchHandler.FindDefinition("moo-cow", 10, 1));
 	}
 }

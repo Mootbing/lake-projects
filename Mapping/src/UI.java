@@ -74,6 +74,9 @@ public class UI extends JFrame{
 		Enter.addActionListener(ActionSearch());
 		WordSearched = SetUpTextArea(WordSearched, "", 50, 200, 600, 100);
 		DefFound = SetUpTextArea(DefFound, "", 50, 225, 600, 100);
+		DefFound.setForeground(Color.WHITE);
+		DefFound.setFont(new Font("Arial", Font.PLAIN, 10));
+		WordSearched.setForeground(Color.WHITE);
 		WordSearched.setFont(new Font("Arial", Font.PLAIN, 40));
 		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 300, 300, 100, 100);
 		ButtonToSwitchDef.addActionListener(ActionSwitchDef());

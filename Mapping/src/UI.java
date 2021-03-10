@@ -72,8 +72,8 @@ public class UI extends JFrame{
 		SearchBox = SetUpTextField(SearchBox, 0, 0, 500, 100);
 		Enter = setUpButton(Enter, "Search", 500, 0, 100, 100);
 		Enter.addActionListener(ActionSearch());
-		WordSearched = SetUpTextArea(WordSearched, "", 50, 200, 600, 100);
-		DefFound = SetUpTextArea(DefFound, "", 50, 225, 600, 100);
+		WordSearched = SetUpJLabel(WordSearched, "", 50, 200, 600, 100);
+		DefFound = SetUpJLabel(DefFound, "", 50, 225, 600, 100);
 		DefFound.setForeground(Color.WHITE);
 		DefFound.setFont(new Font("Arial", Font.PLAIN, 10));
 		WordSearched.setForeground(Color.WHITE);
@@ -174,7 +174,7 @@ public class UI extends JFrame{
 		return f;
 	}
 
-	private JLabel SetUpTextArea(JLabel t, String s, int x, int y, int width, int height) 
+	private JLabel SetUpJLabel(JLabel t, String s, int x, int y, int width, int height) 
 	{
 		t = new JLabel(s);
 		t.setBounds(x, y, width, height);

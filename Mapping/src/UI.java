@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -78,9 +79,9 @@ public class UI extends JFrame{
 		DefFound.setFont(new Font("Arial", Font.PLAIN, 10));
 		WordSearched.setForeground(Color.WHITE);
 		WordSearched.setFont(new Font("Arial", Font.PLAIN, 40));
-		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 300, 300, 100, 100);
+		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 400, 300, 100, 100);
 		ButtonToSwitchDef.addActionListener(ActionSwitchDef());
-		ButtonToSwitchDefPrev = setUpButton(ButtonToSwitchDefPrev, "Previous Def", 100, 300, 100, 100);
+		ButtonToSwitchDefPrev = setUpButton(ButtonToSwitchDefPrev, "Previous Def", 200, 300, 100, 100);
 		ButtonToSwitchDefPrev.addActionListener(ActionSwitchDef());
 		SearchHistoryButton = new JToggleButton("Logs");
 		SearchHistoryButton.setBounds(500, 500, 50, 50);
@@ -239,6 +240,25 @@ public class UI extends JFrame{
 
 	private void SearchForWordOrDef() {
 		
+		String SearchQuery = SearchBox.getText();
+		
+		if(SearchQuery.contains(",")) {
+			ArrayList<String> SearchQueries = new ArrayList<String>();
+			
+			SearchQueries.addAll(Arrays.asList(SearchQuery.split(",")));
+			
+			System.out.println(SearchQueries);
+			
+			JButton NextSearch = setUpButton(null, "next", 500, 300, 100, 100);
+			
+			NextSearch.addActionListener(ActionSearchNext(SearchQueries));
+			
+			SearchQuery = SearchQueries.get(0);
+		}
+		
+		WordSearched.setText(SearchQuery);
+		DefFound.setText("");
+		
 		if(ResultsForWordAndDefButtons != null) {
 		
 			for (JButton b : ResultsForWordAndDefButtons)
@@ -248,10 +268,10 @@ public class UI extends JFrame{
 		   
 		}
 		
-		ArrayList<String> Result = SearchHandler.GetWords(SearchBox.getText(), 10);
+		ArrayList<String> Result = SearchHandler.GetWords(SearchQuery, 10);
 		
 		if (Result.isEmpty()) {
-			SearchBox.setText("Nothing found");
+			DefFound.setText("Nothing Found");
 			return;
 		}
 	
@@ -260,17 +280,20 @@ public class UI extends JFrame{
 			btn.addActionListener(ActionRedirectWord(ResultsForWordAndDefButtons));
 		
 		if(Dropdown.getSelectedItem().equals("Word")) {
-			ArrayList<String> Resultv2 = SearchHandler.FindDefinitionReturnArrayListString(SearchBox.getText(), 10);
+			ArrayList<String> Resultv2 = SearchHandler.FindDefinitionReturnArrayListString(SearchQuery, 10);
 			
 			if (Resultv2.isEmpty()) {
-				SearchBox.setText("Nothing found");
+				DefFound.setText("Nothing Found");
 				return;
 			}else {
-				WordSearched.setText(SearchBox.getText());
 				if(DefCounter >= Resultv2.size())
 					DefCounter = 0;
 				else if (DefCounter < 0)
 					DefCounter = Resultv2.size() - 1;
+				
+				JButton Save = setUpButton(null, "Save", 0, 300, 100, 100);
+				
+				Save.addActionListener(ActionSaveFile());
 				
 				DefFound.setText(Resultv2.get(DefCounter));
 			}
@@ -280,6 +303,48 @@ public class UI extends JFrame{
 			SearchHistory.remove(SearchBox.getText());
 		SearchHistory.add(SearchBox.getText());
 		
+	}
+	
+	private ActionListener ActionSearchNext(ArrayList<String> Searches) {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   if (Searches.isEmpty())
+						   return;
+					   
+					   Searches.remove(0);
+					   
+					   SearchBox.setText(String.join(",", Searches).replaceAll(" ", ""));
+							   
+						SearchForWordOrDef();
+						
+						((JButton)event.getSource()).setVisible(false);
+				   }
+			   };
+			   return listener;
+		   }
+	}
+	
+	private ActionListener ActionSaveFile() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   String Word = SearchBox.getText();
+					   
+					   ArrayList<String> Defs = SearchHandler.FindDefinitionReturnArrayListString(Word, 10);
+					   
+					   WriteWord SaveWordLocally = new WriteWord(Word, Defs);
+					   
+					   if(SaveWordLocally.WriteTheWord())
+						   ((JButton)event.getSource()).setVisible(false);
+				   }
+			   };
+			   return listener;
+		   }
 	}
 	
 	private ArrayList<JButton> MakeJButtonArray(ArrayList<String> Input, int OffsetY){

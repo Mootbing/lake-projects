@@ -88,9 +88,13 @@ public class SearchHandler {
 	}
 	
 	public static ArrayList<String> FindDefinitionReturnArrayListString(String AWord, int ALimit) {
-		ArrayList<String> list = GetDefs(AWord, ALimit);
-		ArrayList<String> listv2 = FindDefinitions(list.get(0));
-		return listv2;
+		try {
+			ArrayList<String> list = GetDefs(AWord, ALimit);
+			ArrayList<String> listv2 = FindDefinitions(list.get(0));
+			return listv2;
+		}catch(Exception e){
+			return new ArrayList<String>();
+		}
 	}
 	
 	private static ArrayList<String> FindDefinitions (String DefinitionToSplit){

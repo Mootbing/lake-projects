@@ -1,4 +1,5 @@
 import java.io.File;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.time.LocalDateTime;
 
 public class WriteWord{
 	ArrayList<String> Definitions;
@@ -17,21 +19,34 @@ public class WriteWord{
 		Definitions = ADefinitions;
 	}
 	
-	public void WriteTheWord() {
+	public Boolean WriteTheWord() {
 		
 		try {
 			File f = PromptUserSaveLocation();
+		
+			if (f == null)
+				return false;
+			
 			FileWriter filewriter = new FileWriter(f);
-			filewriter.append(Word + "\n");
+			
+			filewriter.append(String.format("Searched at: %s", LocalDateTime.now()) + "\n\n");
+			
+			filewriter.append("" + Word + "\n");
 			
 			for (String def : Definitions) {
-				filewriter.append(def + "\n");
+				filewriter.append("\n" + def);
 			}
 			
 			filewriter.close();
+			
+			System.out.println("Done!");
+			
+			return true;
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
 		
 	}

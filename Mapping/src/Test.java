@@ -1,8 +1,3 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Scanner;
-
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;

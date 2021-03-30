@@ -13,8 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
@@ -151,6 +149,8 @@ public class UI extends JFrame{
 						   else 
 							   limit = SearchHistory.size() - 10;
 							   
+						   
+						   
 						   ArrayList<String> NewList = new ArrayList<String>(SearchHistory.subList(limit, SearchHistory.size()));
 						   
 						   ButtonsOfHistory = MakeJButtonArray(NewList, 300);
@@ -282,6 +282,9 @@ public class UI extends JFrame{
 		if(Dropdown.getSelectedItem().equals("Word")) {
 			ArrayList<String> Resultv2 = SearchHandler.FindDefinitionReturnArrayListString(SearchQuery, 10);
 			
+			WriteWord SaveWordLocally = new WriteWord(SearchQuery, Resultv2);
+			SaveWordLocally.WriteTheWord(true);
+			
 			if (Resultv2.isEmpty()) {
 				DefFound.setText("Nothing Found");
 				return;
@@ -339,7 +342,7 @@ public class UI extends JFrame{
 					   
 					   WriteWord SaveWordLocally = new WriteWord(Word, Defs);
 					   
-					   if(SaveWordLocally.WriteTheWord())
+					   if(SaveWordLocally.WriteTheWord(false))
 						   ((JButton)event.getSource()).setVisible(false);
 				   }
 			   };

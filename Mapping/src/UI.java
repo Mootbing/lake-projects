@@ -42,7 +42,7 @@ public class UI extends JFrame{
 	private JTextField DefineWord;
 	private JTextField DefineDefinition;
 	private JButton SubmitWord;
-	private JButton BackToSelection;
+	private JButton OpenFile;
 	
 	
 	
@@ -77,12 +77,12 @@ public class UI extends JFrame{
 		DefFound.setFont(new Font("Arial", Font.PLAIN, 10));
 		WordSearched.setForeground(Color.WHITE);
 		WordSearched.setFont(new Font("Arial", Font.PLAIN, 40));
-		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 400, 300, 100, 100);
+		ButtonToSwitchDef = setUpButton(ButtonToSwitchDef, "Next Def", 350, 500, 100, 50);
 		ButtonToSwitchDef.addActionListener(ActionSwitchDef());
-		ButtonToSwitchDefPrev = setUpButton(ButtonToSwitchDefPrev, "Previous Def", 200, 300, 100, 100);
+		ButtonToSwitchDefPrev = setUpButton(ButtonToSwitchDefPrev, "Previous Def", 150, 500, 100, 50);
 		ButtonToSwitchDefPrev.addActionListener(ActionSwitchDef());
 		SearchHistoryButton = new JToggleButton("Logs");
-		SearchHistoryButton.setBounds(500, 500, 50, 50);
+		SearchHistoryButton.setBounds(450, 500, 50, 50);
 		Pane.add(SearchHistoryButton);
 		SearchHistoryButton.addItemListener(ActionSearchHistory());
 		Dropdown.addItem("Word");
@@ -90,6 +90,8 @@ public class UI extends JFrame{
 		Dropdown.setSelectedItem("Word");
 		Dropdown.setBounds(500, 100, 100, 50);
 		Pane.add(Dropdown);
+		OpenFile = setUpButton(OpenFile, "Open", 250, 500, 100, 50);
+		OpenFile.addActionListener(ActionOpenFile());
 		
 		//Define
 		DefineWord = SetUpTextField(DefineWord, 0, 0, 600, 100);
@@ -97,20 +99,28 @@ public class UI extends JFrame{
 		SubmitWord = setUpButton(SubmitWord, "Submit", 100, 500, 300, 50);
 		SubmitWord.addActionListener(ActionSubmitNewWord());
 		
-		BackToSelection = setUpButton(BackToSelection, "<", 0, 500, 50, 50);
-		BackToSelection.addActionListener(ActionGoBack());
-		
 		HideAll();
 		
 		SelectLookUp.setVisible(true);
-		SelectDefineNew.setVisible(true);
-		
-		//SearchHandler s = new SearchHandler();
-		//System.out.println(s.Search(""));
 		
 		setUpWindow();
 		//laster last
 		repaint();
+	}
+	
+	private ActionListener ActionOpenFile() {
+		{
+			   ActionListener listener = new ActionListener()
+			   {
+				   public void actionPerformed(ActionEvent event)
+				   {
+					   FileChooser Ch = new FileChooser("html");
+					   if (Ch.GetPath() != null)
+						   new NewWindowUI(Ch.GetPath());
+				   }
+			   };
+			   return listener;
+		   }
 	}
 	
 	private ActionListener ActionSwitchDef() {
@@ -199,7 +209,7 @@ public class UI extends JFrame{
 	private void BackToSelectionMenu() {
 		HideAll();
 		SelectLookUp.setVisible(true);
-		SelectDefineNew.setVisible(true);
+		//SelectDefineNew.setVisible(true);
 	}
 
 	private ActionListener ActionSubmitNewWord() {
@@ -249,7 +259,7 @@ public class UI extends JFrame{
 			
 			System.out.println(SearchQueries);
 			
-			JButton NextSearch = setUpButton(null, "next", 500, 300, 100, 100);
+			JButton NextSearch = setUpButton(null, "next", 500, 500, 100, 50);
 			
 			NextSearch.addActionListener(ActionSearchNext(SearchQueries));
 			
@@ -282,7 +292,7 @@ public class UI extends JFrame{
 		if(Dropdown.getSelectedItem().equals("Word")) {
 			ArrayList<String> Resultv2 = SearchHandler.FindDefinitionReturnArrayListString(SearchQuery, 10);
 			
-			WriteWord SaveWordLocally = new WriteWord(SearchQuery, Resultv2);
+			WriteWord SaveWordLocally = new WriteWord(SearchQuery.split(",")[0], Resultv2);
 			SaveWordLocally.WriteTheWord(true);
 			
 			if (Resultv2.isEmpty()) {
@@ -294,7 +304,7 @@ public class UI extends JFrame{
 				else if (DefCounter < 0)
 					DefCounter = Resultv2.size() - 1;
 				
-				JButton Save = setUpButton(null, "Save", 0, 300, 100, 100);
+				JButton Save = setUpButton(null, "Save", 50, 500, 100, 50);
 				
 				Save.addActionListener(ActionSaveFile());
 				
@@ -336,7 +346,7 @@ public class UI extends JFrame{
 			   {
 				   public void actionPerformed(ActionEvent event)
 				   {
-					   String Word = SearchBox.getText();
+					   String Word = SearchBox.getText().split(",")[0];
 					   
 					   ArrayList<String> Defs = SearchHandler.FindDefinitionReturnArrayListString(Word, 10);
 					   
@@ -398,13 +408,13 @@ public class UI extends JFrame{
 						   Dropdown.setVisible(true);
 						   ButtonToSwitchDef.setVisible(true);
 						   ButtonToSwitchDefPrev.setVisible(true);
+						   OpenFile.setVisible(true);
 					   }else if(((AbstractButton) event.getSource()).getText().equals("Define New")) {
 						   HideAll();
 						   DefineWord.setVisible(true);
 						   DefineDefinition.setVisible(true);
 						   SubmitWord.setVisible(true);
 					   }
-					   BackToSelection.setVisible(true);
 				   }
 			   };
 			   return listener;
@@ -412,6 +422,7 @@ public class UI extends JFrame{
 	}
 	
 	private void HideAll() {
+		OpenFile.setVisible(false);
 		SelectLookUp.setVisible(false);
 		SearchHistoryButton.setVisible(false);
 		SelectDefineNew.setVisible(false);
@@ -420,7 +431,6 @@ public class UI extends JFrame{
 		DefineWord.setVisible(false);
 		DefineDefinition.setVisible(false);
 		SubmitWord.setVisible(false);
-		BackToSelection.setVisible(false);
 		Dropdown.setVisible(false);
 		ButtonToSwitchDef.setVisible(false);
 		ButtonToSwitchDefPrev.setVisible(false);

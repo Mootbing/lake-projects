@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,16 +28,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
 
-public class UI extends JFrame{
+public class JFileExplorer extends JFrame{
 	
 	private LineBorder border = new LineBorder(Color.black, 0);
 	private LineBorder ButtonBorder = new LineBorder(Color.decode("#6C5B7B"), 3);
-	
-	private Container ContentPane;
 	
 	private JTextField LDirectoryPath;
 	private PlaceholderTextField RSearchBar; //put greyed out text (placeholderText) "Search"
@@ -47,33 +48,22 @@ public class UI extends JFrame{
 	private ArrayList<String> History = new ArrayList<String>();
 	
 	private JComboBox RSortResults;
+	private JComboBox RSwitchDrives;
 	
-	private FileFilter LookupFilter = FileFilter.None;
+	private FileFilter LookupFilter = FileFilter.File_Sort;
 	
 	private JScrollPane LDirectoryShower;
 	private JPanel LFilesPanel, RSearchPanel, BSelectPanel, LAddDirectoryButtonsPanel;
 	
 	private Container ContentPaneOfSelf;
 	
-	UI(){
+	JFileExplorer(){
 		SetUpUI();
-		RefreshFolder("C:", LookupFilter);
 	}
 	
-	public ArrayList<File> SortFiles(ArrayList<File> Input, boolean IsAcending){
-		
-		ArrayList<String> FileNames = new ArrayList<String>();
-		
-		for (File file : Input) {
-			FileNames.add(file.getName());
-		}
-		
-		if (IsAcending)
-			Collections.sort(FileNames);
-		else
-			Collections.reverse(FileNames);
-		
-		return Input;
+	public File getFileChoosen()
+	{
+		return new File(BFinalSelctionBar.getText());
 	}
 	
 	private void RefreshFolder(String Dir, FileFilter Filter) {
@@ -83,6 +73,7 @@ public class UI extends JFrame{
 		
 		try {
 			
+			//LAddDirectoryButtonsPanel.removeAll();
 			LAddDirectoryButtonsPanel.removeAll();
 			
 			ArrayList<File> Files = Search.search(Dir);
@@ -94,23 +85,28 @@ public class UI extends JFrame{
 			case AlphabeticalOrder_Decending:
 				Collections.reverse(Files);
 				break;
-					
 			}
 			
 			int x = 0;
 			int y = 0;
-			int Width = 100;
-			int Height = 100;
+			int Width = 97;
+			int Height = 97;
 			
 			for (File file : Files) {
 				
-				if ((Filter == FileFilter.Contains && !(file.getName().contains(Filter.GetFilterString()))) && Filter.GetFilterString().replaceAll(" ", "") != "")
+				if ((Filter == FileFilter.Contains && !(file.getName().contains(Filter.GetFilterString())))) {
 					continue;
+				}else if ((Filter == FileFilter.StartsWith && !(file.getName().startsWith(Filter.GetFilterString())))) {
+					continue;
+				}else if ((Filter == FileFilter.EndsWith && !(file.getName().endsWith(Filter.GetFilterString())))) {
+					continue;
+				}
 				
-				if (x >= Math.floor(600/Width)) {
+				if (x >= Math.floor(600 / Width)) {
 					x = 0;
 					y++;
 				}
+				
 				JButton Clicker = setUpButton((JComponent) ContentPaneOfSelf, new JButton(), file.getName(), Width * x, Height * y, Width, Height);
 				Clicker.setBackground(Color.decode("#0c819c"));
 				Clicker.setBorder(new LineBorder(Color.decode("#F67280"), 3));
@@ -119,17 +115,36 @@ public class UI extends JFrame{
 				FileSystemView view = FileSystemView.getFileSystemView();
 			   Clicker.setIcon(view.getSystemIcon(file));
 				
-				LAddDirectoryButtonsPanel.add(Clicker);
+				//LAddDirectoryButtonsPanel.add(Clicker);
+			   LAddDirectoryButtonsPanel.add(Clicker);
 				x++;
 			}
 			
+			LAddDirectoryButtonsPanel.setPreferredSize(new Dimension(600, (y + 1) * Height));
+			
 			LDirectoryPath.setText(Dir);
 			
-			LAddDirectoryButtonsPanel.repaint();
-			
-			System.out.println(History);
-			
 			LBack.setVisible(History.size() > 1);
+			
+			//LAddDirectoryButtonsPanel.repaint();
+			
+			repaint();
+			revalidate();
+			LFilesPanel.repaint();
+			LFilesPanel.revalidate();
+			LDirectoryShower.repaint();
+			LDirectoryShower.revalidate();
+			LAddDirectoryButtonsPanel.repaint();
+			LAddDirectoryButtonsPanel.revalidate();
+			
+			/*
+			 * jframe
+				 * leftpanel
+					 * LDirectoryShower
+					 * 		LAddDirectoryButtonsPanel
+					 * 			buttons
+					 * 			buttons
+			 */
 			
 		} catch (Exception e) {
 			GoBackHistory(1);
@@ -149,6 +164,10 @@ public class UI extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if(f.isDirectory()) {
                 	RefreshFolder(f.getAbsolutePath(), LookupFilter); //later change the none
+                }else 
+                {
+                	BFinalSelctionBar.setText(f.getAbsolutePath());
+                	BSelect.setEnabled(true);
                 }
             }
         };
@@ -186,17 +205,19 @@ public class UI extends JFrame{
 		LDirectoryPath.setForeground(Color.white);
 		LDirectoryPath.addKeyListener(DirectorySearchListener());
 		
-		LDirectoryShower = SetUpScrollPane(LFilesPanel, LDirectoryShower, 0, 50, 600, 550);
+		LAddDirectoryButtonsPanel = setUpPanel(true, LAddDirectoryButtonsPanel, 0, 0, 600, 500);
+		LAddDirectoryButtonsPanel.setBackground(Color.decode("#334553"));
+		LAddDirectoryButtonsPanel.setPreferredSize(new Dimension(600, 400));
+		LAddDirectoryButtonsPanel.setLayout(null);
+		
+		LDirectoryShower = SetUpScrollPane(LAddDirectoryButtonsPanel, LFilesPanel, LDirectoryShower, 0, 50, 600, 450);
 		LDirectoryShower.setBackground(Color.decode("#334553"));
+		LDirectoryShower.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		LDirectoryShower.setViewportView(LAddDirectoryButtonsPanel);
 		
 		LBack = setUpButton(LFilesPanel, LBack, "<", 0, 0, 50, 50);
 		LBack.addActionListener(ActionHistory());
 		LBack.setVisible(false);
-		
-		LAddDirectoryButtonsPanel = setUpPanel(LDirectoryShower, LAddDirectoryButtonsPanel, 0, 0, 600, 500);
-		LAddDirectoryButtonsPanel.setBackground(Color.decode("#334553"));
-		
-		LDirectoryShower.add(LAddDirectoryButtonsPanel);
 		
 		//Right
 		RSearchPanel = setUpPanel(ContentPaneOfSelf, RSearchPanel, 600, 0, 200, 500);
@@ -205,7 +226,7 @@ public class UI extends JFrame{
 		RSearchBar = SetUpPlaceholderTextField(RSearchPanel, RSearchBar, 0, 0, 200, 50);
 		RSearchBar.setPlaceholder("Search");
 		RSearchBar.setBackground(Color.decode("#0c819c"));
-		RSearchBar.addKeyListener(DirectoryFilterListener());
+		RSearchBar.addKeyListener(SearchForFileListener());
 		
 		ArrayList<String> Filtr = new ArrayList<String>();
 		
@@ -213,10 +234,15 @@ public class UI extends JFrame{
 			Filtr.add(Value.toString());
 		}
 		
-		String[] SelectorOptions = (String[]) (Filtr.toArray(new String[Filtr.size()]));
-		RSortResults = SetUpComboBox(RSearchPanel, SelectorOptions, RSortResults, 0, 50, 200, 25);
+		String[] SelectorOptionsResults = (String[]) (Filtr.toArray(new String[Filtr.size()]));
+		RSortResults = SetUpComboBox(RSearchPanel, SelectorOptionsResults, RSortResults, 0, 50, 200, 25);
 		RSortResults.setBackground(Color.white);
 		RSortResults.addActionListener(ActionSelectedOptionsChanged());
+		
+		String[] SelectorOptionDrives = GetDrives();
+		RSwitchDrives = SetUpComboBox(RSearchPanel, SelectorOptionDrives, RSwitchDrives, 0, 75, 200, 25);
+		RSwitchDrives.setBackground(Color.white);
+		RSwitchDrives.addActionListener(ActionSwitchDrives());
 		
 		//Bottom
 		BSelectPanel = setUpPanel(ContentPaneOfSelf, BSelectPanel, 0, 500, 800, 100);
@@ -226,40 +252,97 @@ public class UI extends JFrame{
 		RSearchPanel.setLayout(null);
 		BSelectPanel.setLayout(null);
 		
+		BFinalSelctionBar = SetUpTextField(BSelectPanel, BFinalSelctionBar, 25, 20, 450, 25);
+		BFinalSelctionBar.setBackground(Color.decode("#a64c56"));
+		BFinalSelctionBar.setForeground(Color.white);
+		BFinalSelctionBar.setEditable(false);
+		
 		BSelect = setUpButton(BSelectPanel, BSelect, "Select", 500, 7, 100, 50); //450, 450, 100, 50
+		BSelect.setEnabled(false);
+		BSelect.addActionListener(ActionSelectCancelOrSubmit());
+		
 		BCancel = setUpButton(BSelectPanel, BCancel, "Cancel", 650, 7, 100, 50); //600, 450, 100, 50
+		BCancel.addActionListener(ActionSelectCancelOrSubmit());
 		
 		//last
-		setUpWindow();
-		repaint();
 		setBackground(Color.DARK_GRAY);
 		LFilesPanel.repaint();
 		RSearchPanel.repaint();
 		BSelectPanel.repaint();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//laster last
+		RefreshFolder("C:", LookupFilter);
+		setUpWindow();
+		repaint();
+		revalidate();
 	}
 	
-	private ActionListener ActionSelectedOptionsChanged() {
+	private String[] GetDrives() 
+	{
+		ArrayList<String> Drives = new ArrayList<String>();
+		for (File f : File.listRoots()) {
+			Drives.add(f.toString());
+		}
+			
+		return (String[]) (Drives.toArray(new String[Drives.size()]));
+	}
+	
+	ActionListener ActionSwitchDrives() {
         ActionListener action = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	LookupFilter = FileFilter.valueOf(RSortResults.getSelectedItem().toString());
-            	RefreshFolder(LDirectoryPath.getText(), LookupFilter);
-            	System.out.println(LookupFilter);
+            	RefreshFolder(((JComboBox<String>)e.getSource()).getSelectedItem().toString(), LookupFilter);
             }
         };
         return action;
     }
 	
-	KeyListener DirectoryFilterListener()
+	ActionListener ActionSelectedOptionsChanged() {
+        ActionListener action = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	LookupFilter = FileFilter.valueOf(RSortResults.getSelectedItem().toString());
+            	RefreshFolder(LDirectoryPath.getText(), LookupFilter);
+            }
+        };
+        return action;
+    }
+	
+	ActionListener ActionSelectCancelOrSubmit() {
+        ActionListener action = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	
+            	String EventText = ((JButton)e.getSource()).getText();
+            	
+            	//if(EventText.equals("Cancel"))
+            		//main.setFile(null);
+            	//else if(EventText.equals("Select"))
+            		//main.setFile(new File(BFinalSelctionBar.getText()));
+            	dispose();
+            }
+        };
+        return action;
+    }
+	
+	KeyListener SearchForFileListener()
     {
             KeyListener listener = new KeyAdapter()
             {
                 public void keyPressed(KeyEvent event)
                 {
-                	LookupFilter.SetFilterString(RSearchBar.getText() + event.getKeyChar());
+                	String CurrentText = RSearchBar.getText() + event.getKeyChar();
+                	if (LookupFilter == FileFilter.File_Sort && (CurrentText).replaceAll(" ", "") != "") {
+                		LookupFilter = FileFilter.Contains;
+                	}else if (LookupFilter != FileFilter.File_Sort && (CurrentText.replaceAll("", "").isBlank())) {
+                		LookupFilter = FileFilter.File_Sort;
+                	}
+
+            		RSortResults.setSelectedItem(LookupFilter.toString());
+                	
+                	LookupFilter.SetFilterString(CurrentText);
                 	RefreshFolder(LDirectoryPath.getText(), LookupFilter);
-                	System.out.println(LookupFilter.GetFilterString());
                 }
             };
             return listener;
@@ -286,8 +369,9 @@ public class UI extends JFrame{
 		return f;
 	}
 	
-	private JScrollPane SetUpScrollPane(JComponent C, JScrollPane f, int x, int y, int width, int height) {
-		f = new JScrollPane();
+	private JScrollPane SetUpScrollPane(JPanel Area, JComponent C, JScrollPane f, int x, int y, int width, int height) {
+		f = new JScrollPane(Area, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+		        JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		f.setBounds(x, y, width, height);
 		f.setBorder(border);
 		C.add(f);
@@ -336,6 +420,14 @@ public class UI extends JFrame{
 		return panel;
 	}
 	
+	private JPanel setUpPanel(boolean IsLayout, JPanel panel, int x, int y, int width, int height)
+	{
+		panel = new JPanel(new SpringLayout());
+		panel.setBounds(x, y, width, height);
+		panel.setBorder(border);
+		return panel;
+	}
+	
 	private void setUpWindow()
 	{
 		//last
@@ -347,7 +439,7 @@ public class UI extends JFrame{
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		UI U = new UI();
+		JFileExplorer U = new JFileExplorer();
 	}
 
 }

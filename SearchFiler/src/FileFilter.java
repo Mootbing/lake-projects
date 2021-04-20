@@ -1,7 +1,7 @@
 
 public enum FileFilter {
 	
-    None(0),
+    File_Sort(0),
     AlphabeticalOrder_Acending(1),
     AlphabeticalOrder_Decending(2),
     Contains(3),

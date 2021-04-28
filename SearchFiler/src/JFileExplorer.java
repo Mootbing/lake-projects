@@ -2,34 +2,24 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
 
@@ -55,10 +45,31 @@ public class JFileExplorer extends JFrame{
 	private JScrollPane LDirectoryShower;
 	private JPanel LFilesPanel, RSearchPanel, BSelectPanel, LAddDirectoryButtonsPanel;
 	
+	File  FileToReturn = null;
+	boolean CanReturn = false;
+	
 	private Container ContentPaneOfSelf;
 	
 	JFileExplorer(){
+		
+	}
+	
+	public File Run() 
+	{
 		SetUpUI();
+		while (!CanReturn) 
+		{
+			System.out.println("");
+			//do nothing;
+		}
+		 /*for Mr.Lake:
+		 for whatever reason... Java's while loop doesn't block the 
+		 JFrame's window loop, unlike other UI elements in Python. 
+		 So I was able to sue this to return a file whenever called
+		 and therefore, coded my own "event listener" except 
+		 wayyyy less efficient
+		 */
+		return FileToReturn;
 	}
 	
 	public File getFileChoosen()
@@ -73,7 +84,6 @@ public class JFileExplorer extends JFrame{
 		
 		try {
 			
-			//LAddDirectoryButtonsPanel.removeAll();
 			LAddDirectoryButtonsPanel.removeAll();
 			
 			ArrayList<File> Files = Search.search(Dir);
@@ -316,10 +326,10 @@ public class JFileExplorer extends JFrame{
             	
             	String EventText = ((JButton)e.getSource()).getText();
             	
-            	//if(EventText.equals("Cancel"))
-            		//main.setFile(null);
-            	//else if(EventText.equals("Select"))
-            		//main.setFile(new File(BFinalSelctionBar.getText()));
+            	if(EventText.equals("Select"))
+            		FileToReturn = new File(BFinalSelctionBar.getText());
+            	
+            	CanReturn = true;
             	dispose();
             }
         };
@@ -440,6 +450,7 @@ public class JFileExplorer extends JFrame{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		JFileExplorer U = new JFileExplorer();
+		System.out.println(U.Run());
 	}
 
 }

@@ -29,7 +29,7 @@ public class JFileExplorer extends JFrame{
 	private LineBorder ButtonBorder = new LineBorder(Color.decode("#6C5B7B"), 3);
 	
 	private JTextField LDirectoryPath;
-	private PlaceholderTextField RSearchBar; //put greyed out text (placeholderText) "Search"
+	private PlaceholderTextField RSearchBar; //put grayed out text (placeholderText) "Search"
 	private JTextField BFinalSelctionBar;
 	
 	private JButton BSelect;
@@ -345,7 +345,7 @@ public class JFileExplorer extends JFrame{
                 	String CurrentText = RSearchBar.getText() + event.getKeyChar();
                 	if (LookupFilter == FileFilter.File_Sort && (CurrentText).replaceAll(" ", "") != "") {
                 		LookupFilter = FileFilter.Contains;
-                	}else if (LookupFilter != FileFilter.File_Sort && (CurrentText.replaceAll("", "").isBlank())) {
+                	}else if (LookupFilter != FileFilter.File_Sort && (CurrentText.replaceAll("", "").isEmpty())) {
                 		LookupFilter = FileFilter.File_Sort;
                 	}
 

@@ -19,8 +19,12 @@ public class CVSProcesser {
 			for (int i = 0; i < StrTestAnswer.size(); i++)  //add all the answers and questions into arraylist in a score format
 			{
 				String[] Str = StrTestAnswer.get(i).split(",");
-				TestAnswer.add(new Score(Str[0], Str[1]));
-			}
+				
+				if(Str.length == 2)
+					TestAnswer.add(new Score(Str[0], Str[1].toUpperCase()));
+				else if(Str.length == 1)
+					TestAnswer.add(new Score(Str[0], "Blank"));	
+			}	
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -59,7 +63,8 @@ public class CVSProcesser {
 			{
 				if (!TestAnswer.get(i).getProblem().equals(Other.GetAnswer().get(i).getProblem())) 
 				{
-					System.out.println("The questions are misaligned for " + TestAnswer.get(i).getProblem() + " which is matched to " + Other.GetAnswer().get(i).getProblem());
+					System.out.println("The questions are misaligned for " + TestAnswer.get(i).getProblem() 
+							+ " which is matched to " + Other.GetAnswer().get(i).getProblem());
 					IsMisaligned = true;
 				}
 				MessedUpSpots.add(i + 1);
